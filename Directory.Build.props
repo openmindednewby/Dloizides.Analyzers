@@ -13,9 +13,9 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>roslyn;analyzer;comments;code-style;documentation;xml-doc</PackageTags>
+    <PackageTags>roslyn;analyzer;comments;code-style;documentation;xml-doc;testing;naming</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Description>Roslyn analyzers for a no-comments code style: DLZ0001 bans line/block comments, DLZ0002 allows doc comments only on public/protected members, DLZ0003 caps a doc comment at 3 lines of summary/param/returns.</Description>
+    <Description>Roslyn analyzers for a no-comments code style: DLZ0001 bans line/block comments, DLZ0002 allows doc comments only on public/protected members, DLZ0003 caps a doc comment at 3 lines of summary/param/returns, DLZ0004 requires Method_Scenario_Expected test names.</Description>
 
     <Version>0.2.0</Version>
     <AssemblyVersion>0.2.0.0</AssemblyVersion>

@@ -33,7 +33,7 @@ internal static class AnalyzerRunner
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         var compileErrors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
         Assert.Empty(compileErrors);
-        var analyzers = ImmutableArray.Create<DiagnosticAnalyzer>(new NoCommentsAnalyzer(), new DocCommentAnalyzer());
+        var analyzers = ImmutableArray.Create<DiagnosticAnalyzer>(new NoCommentsAnalyzer(), new DocCommentAnalyzer(), new TestNameAnalyzer());
         var all = await compilation.WithAnalyzers(analyzers).GetAllDiagnosticsAsync();
         return all.Where(d => d.Id.StartsWith("DLZ", StringComparison.Ordinal) || d.Id.StartsWith("AD", StringComparison.Ordinal))
             .ToImmutableArray();

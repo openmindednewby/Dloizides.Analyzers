@@ -37,4 +37,14 @@ public static class Descriptors
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
+
+    /// <summary>A test method whose name is not Method_Scenario_Expected.</summary>
+    public static readonly DiagnosticDescriptor TestNameShape = new(
+        "DLZ0004",
+        "Test names must be Method_Scenario_Expected",
+        "Rename '{0}' to Method_Scenario_Expected: 3 PascalCase parts, the Scenario starting With, When, Without or Given",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
 }
