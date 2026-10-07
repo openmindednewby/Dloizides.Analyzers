@@ -47,4 +47,14 @@ public static class Descriptors
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
+
+    /// <summary>A type in a namespace named after a technical type instead of a feature.</summary>
+    public static readonly DiagnosticDescriptor FeatureFolders = new(
+        "DLZ0005",
+        "Organize code by feature, not by technical type",
+        "'{0}' sits in the '{1}' namespace segment: organize by feature/use case (ARCH-VSA-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
 }
