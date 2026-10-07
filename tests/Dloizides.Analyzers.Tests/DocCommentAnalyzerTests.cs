@@ -146,4 +146,65 @@ public class DocCommentAnalyzerTests
 
         Assert.Equal(new[] { Dlz0003 }, ids);
     }
+
+    [Fact]
+    public async Task OwnersMultiLineSummaryWithFlowChain_ReportsDlz0003()
+    {
+        var source = "public class A {\n/// <summary>\n/// Calculates the declaration.\n/// Loads the tenant settings first.\n/// Then prices every line.\n/// Flow: A → B\n/// </summary>\npublic int Add(int a) => a;\n}";
+
+        var ids = await AnalyzerRunner.IdsAsync(source);
+
+        Assert.Equal(new[] { Dlz0003 }, ids);
+    }
+
+    [Fact]
+    public async Task OneLineIntegrationTestSummary_NoDiagnostic()
+    {
+        var source = "/// <summary>Integration tests for POST /api/v1/declarations/calculate.</summary>\npublic class A { }";
+
+        var ids = await AnalyzerRunner.IdsAsync(source);
+
+        Assert.Empty(ids);
+    }
+
+    [Theory]
+    [InlineData("/// <summary>Prices a menu → returns the total.</summary>")]
+    [InlineData("/// <summary>Prices a menu -> returns the total.</summary>")]
+    [InlineData("/// <summary>Prices a menu.</summary>\n/// Flow: load then price")]
+    public async Task CallChainInDocComment_ReportsDlz0003(string doc)
+    {
+        var ids = await AnalyzerRunner.IdsAsync($"public class A {{\n{doc}\npublic int Price() => 1;\n}}");
+
+        Assert.Equal(new[] { Dlz0003 }, ids);
+    }
+
+    [Fact]
+    public async Task TwoLineSummary_ReportsDlz0003()
+    {
+        var source = "public class A {\n/// <summary>\n/// Prices a menu.\n/// Uses tenant settings.\n/// </summary>\npublic int Price() => 1;\n}";
+
+        var ids = await AnalyzerRunner.IdsAsync(source);
+
+        Assert.Equal(new[] { Dlz0003 }, ids);
+    }
+
+    [Fact]
+    public async Task SummaryLineOver120Chars_ReportsDlz0003()
+    {
+        var source = $"public class A {{\n/// <summary>{new string('x', 121)}</summary>\npublic int Price() => 1;\n}}";
+
+        var ids = await AnalyzerRunner.IdsAsync(source);
+
+        Assert.Equal(new[] { Dlz0003 }, ids);
+    }
+
+    [Fact]
+    public async Task OneLineSummaryWithMultiLineParam_NoDiagnostic()
+    {
+        var source = "public class A {\n/// <summary>Adds.</summary>\n/// <param name=\"a\">First\n/// operand.</param>\npublic int Add(int a) => a;\n}";
+
+        var ids = await AnalyzerRunner.IdsAsync(source);
+
+        Assert.Empty(ids);
+    }
 }

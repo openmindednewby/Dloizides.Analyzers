@@ -8,6 +8,8 @@ namespace Dloizides.Analyzers.Rules;
 internal static class DocCommentText
 {
     public const int MaxLines = 3;
+    public const int MaxSummaryLines = 1;
+    public const int MaxLineChars = 120;
 
     private static readonly HashSet<string> AllowedElements = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -18,6 +20,10 @@ internal static class DocCommentText
     private static readonly Regex SummaryDelimiter = new(@"^<\s*/?\s*summary\s*>$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex InheritDoc = new(@"^<\s*inheritdoc\b[^>]*/>$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    private static readonly Regex CallChain = new(@"(→|->|^Flow\s*:)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex ParamOrReturnsStart = new(@"^<\s*(param|returns)\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex ParamOrReturnsEnd = new(@"(</\s*(param|returns)\s*>|/>)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
     public static string? FindViolation(string docText)
     {
         var lines = ContentLines(docText).ToList();
@@ -27,10 +33,35 @@ internal static class DocCommentText
             .FirstOrDefault(name => !AllowedElements.Contains(name));
         if (banned is not null)
             return $"Doc comment uses <{banned}>; only <summary>, <param> and <returns> are allowed";
-        var counted = lines.Count(line => !SummaryDelimiter.IsMatch(line) && !InheritDoc.IsMatch(line));
-        return counted > MaxLines
-            ? $"Doc comment has {counted} lines; the cap is {MaxLines}"
+        if (lines.Any(line => CallChain.IsMatch(line)))
+            return "Doc comment describes a call chain or flow; say what the member is for in one line";
+        var counted = lines.Where(IsCounted).ToList();
+        var summaryLines = SummaryLineCount(counted);
+        if (summaryLines > MaxSummaryLines)
+            return $"Doc comment summary has {summaryLines} lines; it must be one line";
+        if (lines.Any(line => line.Length > MaxLineChars))
+            return $"Doc comment line is over {MaxLineChars} characters";
+        return counted.Count > MaxLines
+            ? $"Doc comment has {counted.Count} lines; the cap is {MaxLines}"
             : null;
+    }
+
+    private static bool IsCounted(string line) => !SummaryDelimiter.IsMatch(line) && !InheritDoc.IsMatch(line);
+
+    private static int SummaryLineCount(IEnumerable<string> lines)
+    {
+        var summaryLines = 0;
+        var inParamOrReturns = false;
+        foreach (var line in lines)
+        {
+            if (ParamOrReturnsStart.IsMatch(line))
+                inParamOrReturns = true;
+            if (!inParamOrReturns)
+                summaryLines++;
+            if (inParamOrReturns && ParamOrReturnsEnd.IsMatch(line))
+                inParamOrReturns = false;
+        }
+        return summaryLines;
     }
 
     private static IEnumerable<string> ContentLines(string docText) =>

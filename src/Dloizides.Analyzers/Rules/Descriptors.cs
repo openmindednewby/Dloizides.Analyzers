@@ -28,7 +28,7 @@ public static class Descriptors
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
 
-    /// <summary>A doc comment over the line cap or using a banned element.</summary>
+    /// <summary>A doc comment over the line caps, describing a call chain, or using a banned element.</summary>
     public static readonly DiagnosticDescriptor DocCommentShape = new(
         "DLZ0003",
         "Doc comments must be short",
