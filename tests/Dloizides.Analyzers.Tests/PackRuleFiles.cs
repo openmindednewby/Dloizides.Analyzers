@@ -30,7 +30,7 @@ internal static class PackRuleFiles
 
     public static string GlobalConfig(IReadOnlyList<DiagnosticDescriptor> descriptors)
     {
-        var builder = new StringBuilder("is_global = true\nglobal_level = -100\n");
+        var builder = new StringBuilder("is_global = true\nglobal_level = 50\n");
         foreach (var descriptor in descriptors.Where(IsRaisedToWarning))
             builder.Append("dotnet_diagnostic.").Append(descriptor.Id).Append(".severity = warning\n");
         return builder.ToString();
