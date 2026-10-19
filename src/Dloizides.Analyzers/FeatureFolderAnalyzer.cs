@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Dloizides.Analyzers;
 
-/// <summary>Reports DLZ0005 for a type in a technical-type namespace such as Services or Helpers.</summary>
+/// <summary>Reports DLZ0005 for a type in a technical-type namespace when HouseArchitectureStyle is CleanVerticalSlice.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class FeatureFolderAnalyzer : DiagnosticAnalyzer
 {
@@ -29,11 +29,14 @@ public sealed class FeatureFolderAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterCompilationStartAction(start =>
         {
-            if (IsExemptAssembly(start.Compilation.AssemblyName))
+            if (IsExemptAssembly(start.Compilation.AssemblyName) || !IsVerticalSliceStyle(start.Options))
                 return;
             start.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
         });
     }
+
+    private static bool IsVerticalSliceStyle(AnalyzerOptions options) =>
+        ArchitectureStyle.Read(options) == ArchitectureStyle.CleanVerticalSlice;
 
     private static bool IsExemptAssembly(string? assemblyName)
     {

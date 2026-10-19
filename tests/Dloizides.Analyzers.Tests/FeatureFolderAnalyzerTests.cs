@@ -91,4 +91,17 @@ public class FeatureFolderAnalyzerTests
 
         Assert.Empty(ids);
     }
+
+    [Theory]
+    [InlineData("Clean")]
+    [InlineData(null)]
+    [InlineData("Onion")]
+    public async Task Analyze_WithStyleOtherThanVerticalSlice_ReportsNothing(string? style)
+    {
+        var source = "namespace Shop.Services { public class Pricing { } }";
+
+        var ids = await AnalyzerRunner.IdsAsync(source, assemblyName: "Shop.Api", architectureStyle: style);
+
+        Assert.Empty(ids);
+    }
 }

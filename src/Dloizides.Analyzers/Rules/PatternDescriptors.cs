@@ -59,4 +59,14 @@ public static class PatternDescriptors
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
+    /// <summary>A compilation whose HouseArchitectureStyle is missing or not an approved style.</summary>
+    public static readonly DiagnosticDescriptor ArchitectureStyle = new(
+        "DLZ0011",
+        "The project declares an approved architecture style",
+        "HouseArchitectureStyle is '{0}': set it to Clean or CleanVerticalSlice in Directory.Build.props (PAT-STYLE-1)",
+        Category,
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink,
+        customTags: WellKnownDiagnosticTags.CompilationEnd);
 }
