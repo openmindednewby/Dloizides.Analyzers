@@ -13,9 +13,9 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>roslyn;analyzer;comments;code-style;documentation;xml-doc;testing;naming</PackageTags>
+    <PackageTags>roslyn;analyzer;comments;code-style;documentation;xml-doc;testing;naming;patterns</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Description>Roslyn analyzers for a no-comments code style: DLZ0001 bans line/block comments, DLZ0002 allows doc comments only on public/protected members, DLZ0003 caps a doc comment at 3 lines of summary/param/returns, DLZ0004 requires Method_Scenario_Expected test names, DLZ0005 reports types in Services/Helpers/Utils/Utilities/Common namespaces.</Description>
+    <Description>Roslyn analyzers for a no-comments code style: DLZ0001 bans line/block comments, DLZ0002 allows doc comments only on public/protected members, DLZ0003 caps a doc comment at 3 lines of summary/param/returns, DLZ0004 requires Method_Scenario_Expected test names, DLZ0005 reports types in Services/Helpers/Utils/Utilities/Common namespaces, DLZ0006-DLZ0010 enforce the house patterns (IHttpClientFactory, IOptions, declared authorization, IMemoryCache, justified suppressions).</Description>
 
     <Version>0.4.0</Version>
     <AssemblyVersion>0.4.0.0</AssemblyVersion>
