@@ -13,9 +13,9 @@ internal static class PatternRunner
             .Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))
             .ToArray();
 
-    public static async Task<IReadOnlyList<string>> IdsAsync(string source, string assemblyName = "Shop.Api")
+    public static async Task<IReadOnlyList<string>> IdsAsync(string source, string assemblyName = "Shop.Api", string path = "Sample.cs")
     {
-        var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Latest), "Sample.cs");
+        var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Latest), path);
         var compilation = CSharpCompilation.Create(
             assemblyName,
             new[] { tree },
@@ -28,7 +28,9 @@ internal static class PatternRunner
             new TypedOptionsAnalyzer(),
             new DeclaredAuthorizationAnalyzer(),
             new StaticCacheAnalyzer(),
-            new SuppressionJustificationAnalyzer());
+            new SuppressionJustificationAnalyzer(),
+            new RecordContractAnalyzer(),
+            new CompositionRootAnalyzer());
         var diagnostics = await compilation.WithAnalyzers(analyzers).GetAnalyzerDiagnosticsAsync();
         return diagnostics.Select(d => d.Id).ToList();
     }

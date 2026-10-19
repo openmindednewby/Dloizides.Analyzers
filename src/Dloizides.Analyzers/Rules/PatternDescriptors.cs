@@ -69,4 +69,24 @@ public static class PatternDescriptors
         isEnabledByDefault: true,
         helpLinkUri: HelpLink,
         customTags: WellKnownDiagnosticTags.CompilationEnd);
+
+    /// <summary>A class named *Dto, *Command or *Event that is not a record.</summary>
+    public static readonly DiagnosticDescriptor RecordContract = new(
+        "DLZ0012",
+        "DTOs, commands and events are records",
+        "'{0}' is a DTO, command or event: declare it as an immutable record (PAT-REVIEW-7)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
+    /// <summary>A service of this solution constructed with new outside the composition root.</summary>
+    public static readonly DiagnosticDescriptor CompositionRoot = new(
+        "DLZ0013",
+        "Services are injected, not constructed",
+        "'{0}' is a service: register it and inject it instead of constructing it outside the composition root (PAT-REVIEW-4)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
 }
