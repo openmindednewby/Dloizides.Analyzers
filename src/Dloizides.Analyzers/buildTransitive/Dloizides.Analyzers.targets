@@ -3,7 +3,9 @@
   <PropertyGroup>
     <WarningsNotAsErrors>$(WarningsNotAsErrors);$(DloizidesPackRuleIds);DLZ0001;DLZ0002;DLZ0003;DLZ0004;DLZ0005;DLZ0012;DLZ0013</WarningsNotAsErrors>
   </PropertyGroup>
-  <ItemGroup>
-    <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)Dloizides.Analyzers.packs.globalconfig" />
-  </ItemGroup>
+  <Target Name="DloizidesAddPackRuleConfig" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <EditorConfigFiles Include="$(MSBuildThisFileDirectory)Dloizides.Analyzers.packs.globalconfig" />
+    </ItemGroup>
+  </Target>
 </Project>
