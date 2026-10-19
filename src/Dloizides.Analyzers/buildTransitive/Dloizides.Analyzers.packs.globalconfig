@@ -81,3 +81,5 @@ dotnet_diagnostic.VSTHRD109.severity = warning
 dotnet_diagnostic.VSTHRD112.severity = warning
 dotnet_diagnostic.VSTHRD113.severity = warning
 dotnet_diagnostic.VSTHRD202.severity = warning
+dotnet_diagnostic.MA0004.severity = none
+dotnet_diagnostic.MA0048.severity = none
