@@ -49,7 +49,7 @@ internal static class PackRuleFiles
 
     private static bool IsRaisedToWarning(DiagnosticDescriptor descriptor) =>
         descriptor.IsEnabledByDefault
-        && descriptor.DefaultSeverity == DiagnosticSeverity.Info
+        && descriptor.DefaultSeverity is DiagnosticSeverity.Info or DiagnosticSeverity.Error
         && !descriptor.CustomTags.Contains(WellKnownDiagnosticTags.NotConfigurable);
 
     private static string Metadata(string key) =>

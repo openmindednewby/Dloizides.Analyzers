@@ -68,7 +68,7 @@ Publish with `./publish.ps1 -Bump patch -ApiKey $env:NUGET_API_KEY` from a clean
 
 ## Rule packs and DLZ0012-DLZ0013 (D-PAT-12 "Whole rule packs as warnings, one shared approach")
 
-Referencing this package also brings Meziantou.Analyzer, Microsoft.VisualStudio.Threading.Analyzers and SonarAnalyzer.CSharp. `buildTransitive/Dloizides.Analyzers.packs.globalconfig` raises every default-enabled Info rule of the packs to warning (`global_level = -100`, so a repo `.editorconfig` wins). `buildTransitive/Dloizides.Analyzers.targets` appends every pack rule ID plus DLZ0001-DLZ0005, DLZ0012 and DLZ0013 to `WarningsNotAsErrors`, so a `TreatWarningsAsErrors` repo still builds; the warnings are counted by the ratchet, not held to zero. `PackRuleFilesTests` fails when a pack bump changes the rule list and names the regenerated file to copy in.
+Referencing this package also brings Meziantou.Analyzer, Microsoft.VisualStudio.Threading.Analyzers and SonarAnalyzer.CSharp. `buildTransitive/Dloizides.Analyzers.packs.globalconfig` sets every default-enabled Info or Error rule of the packs to warning (`global_level = -100`, so a repo `.editorconfig` wins). `buildTransitive/Dloizides.Analyzers.targets` appends every pack rule ID plus DLZ0001-DLZ0005, DLZ0012 and DLZ0013 to `WarningsNotAsErrors`, so a `TreatWarningsAsErrors` repo still builds; the warnings are counted by the ratchet, not held to zero. `PackRuleFilesTests` fails when a pack bump changes the rule list and names the regenerated file to copy in.
 
 | ID | Rule |
 |---|---|
