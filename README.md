@@ -74,3 +74,18 @@ Referencing this package also brings Meziantou.Analyzer, Microsoft.VisualStudio.
 |---|---|
 | DLZ0012 | A class named `*Dto`, `*Command` or `*Event` that derives from `object` is a record (PAT-REVIEW-7) |
 | DLZ0013 | A concrete `*Service`/`*Repository`/`*Handler`/`*Provider`/`*Manager`/`*Client` of the same solution is not constructed with `new` outside Program.cs/Startup.cs, a method taking `IServiceCollection`/`IServiceProvider`/a host builder, a lambda passed to `Add*`/`TryAdd*`/`Configure*`, or the type's own factory (PAT-REVIEW-4) |
+
+## DLZ0014 (REVIEW-THREADS-1 C4 "Routes are RESTful (resource noun + HTTP verb), test fixtures included")
+
+DLZ0014 (warning, listed in `WarningsNotAsErrors`) reports a string-literal route template whose path segment is named after an action. It reads the first positional argument of `[Route]`, `[HttpGet]`, `[HttpPost]`, `[HttpPut]`, `[HttpDelete]`, `[HttpPatch]`, and every string argument of `Get`, `Post`, `Put`, `Delete`, `Patch`, `Routes` called inside a method named `Configure` (FastEndpoints). Test projects are not exempt: a fixture route is a route.
+
+Each segment's leading token is checked: the segment up to the first `-`, `_`, `.` or upper-case letter, lower-cased. `{param}` segments are skipped.
+
+| Word list | Flagged when |
+|---|---|
+| get, add, list, search, save, send, edit, set, run | the leading token IS the word: `list`, `send-email`, `sendMessage`, `get_by_id` |
+| create, update, delete, remove, fetch, insert, execute, calculate | the leading token starts with the word and the rest is not a noun ending (s, d, r, rs, es, ed, ion, ions, or, ors, al, ing, ings): `create`, `createwithclaims`, `update-status`, `removeall` |
+
+Not flagged, by design: `settings`, `setup`, `addresses`, `listings`, `runtime-switch` (leading token `runtime`, a noun), `updates`, `executions`, `calculator`, `removal`. A verb that is not the leading token (`bulk-delete`) is not seen. Constants, interpolated strings and minimal-API `Map*` calls are not read.
+
+Measured before shipping (2026-10-26, grep estimate with the same word rules): 3 hits across the SaaS backend services, 2 in PROOViD AMLService. Hence warning, not error; consumers keep a frozen baseline and burn it down.

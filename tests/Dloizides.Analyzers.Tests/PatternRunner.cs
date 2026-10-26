@@ -30,7 +30,8 @@ internal static class PatternRunner
             new StaticCacheAnalyzer(),
             new SuppressionJustificationAnalyzer(),
             new RecordContractAnalyzer(),
-            new CompositionRootAnalyzer());
+            new CompositionRootAnalyzer(),
+            new RestfulRouteAnalyzer());
         var diagnostics = await compilation.WithAnalyzers(analyzers).GetAnalyzerDiagnosticsAsync();
         return diagnostics.Select(d => d.Id).ToList();
     }

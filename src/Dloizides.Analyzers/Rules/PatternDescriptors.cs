@@ -89,4 +89,14 @@ public static class PatternDescriptors
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
+
+    /// <summary>A route template with a path segment named after an action instead of a resource.</summary>
+    public static readonly DiagnosticDescriptor RestfulRoute = new(
+        "DLZ0014",
+        "Routes name resources, the HTTP verb names the action",
+        "Route '{0}' has the action segment '{1}': name the resource with a noun and let the HTTP verb carry the action (C4 \"Routes are RESTful\")",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
 }
