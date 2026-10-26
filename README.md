@@ -79,13 +79,16 @@ Referencing this package also brings Meziantou.Analyzer, Microsoft.VisualStudio.
 
 DLZ0014 (warning, listed in `WarningsNotAsErrors`) reports a string-literal route template whose path segment is named after an action. It reads the first positional argument of `[Route]`, `[HttpGet]`, `[HttpPost]`, `[HttpPut]`, `[HttpDelete]`, `[HttpPatch]`, and every string argument of `Get`, `Post`, `Put`, `Delete`, `Patch`, `Routes` called inside a method named `Configure` (FastEndpoints). Test projects are not exempt: a fixture route is a route.
 
-Each segment's leading token is checked: the segment up to the first `-`, `_`, `.` or upper-case letter, lower-cased. `{param}` segments are skipped.
+Each segment's leading token is checked: the segment up to the first `-`, `_`, `.` or upper-case letter, lower-cased. `{param}` segments are skipped. A segment equal to `[action]` (any case) is always flagged: the MVC method name becomes the path.
 
-| Word list | Flagged when |
+Action words: get, add, list, search, save, send, edit, set, run, create, update, delete, remove, fetch, insert, execute, calculate. A leading token that starts with one is flagged (`get`, `getall`, `getbyid`, `sendemail`, `addclaim`, `createwithclaims`, `update-status`, `sendMessage`) unless:
+
+| Exception | Examples not flagged |
 |---|---|
-| get, add, list, search, save, send, edit, set, run | the leading token IS the word: `list`, `send-email`, `sendMessage`, `get_by_id` |
-| create, update, delete, remove, fetch, insert, execute, calculate | the leading token starts with the word and the rest is not a noun ending (s, d, r, rs, es, ed, ion, ions, or, ors, al, ing, ings): `create`, `createwithclaims`, `update-status`, `removeall` |
+| the rest is a noun ending: s, r, rs, er, ers, es, ion, ions, or, ors, al, ing, ings | `updates`, `fetcher`, `fetchers`, `inserts`, `lists` |
+| the rest is a participle `d`/`ed`, alone or followed by by, on, at, date, time, from, to | `createdby`, `createdon`, `updatedat`, `added` |
+| the token starts with a noun: setting, setup, settle, address, listing, listen, runtime, runner, editor, edition | `settings`, `setup`, `settlements`, `address`, `addresses`, `listings`, `runtime-switch` |
 
-Not flagged, by design: `settings`, `setup`, `addresses`, `listings`, `runtime-switch` (leading token `runtime`, a noun), `updates`, `executions`, `calculator`, `removal`. A verb that is not the leading token (`bulk-delete`) is not seen. Constants, interpolated strings and minimal-API `Map*` calls are not read.
+Tokens that do not start with an action word pass: `deletion(s)`, `insertion`, `calculator`, `executions`, `v1`, `{id:guid}`. Residue: a verb that is not the leading token (`bulk-delete`) is not seen; a run-on noun missing from the list (`sendgrid`, `getaway`) is flagged and needs a justified suppression. Constants, interpolated strings and minimal-API `Map*` calls are not read.
 
 Measured before shipping (2026-10-26, grep estimate with the same word rules): 3 hits across the SaaS backend services, 2 in PROOViD AMLService. Hence warning, not error; consumers keep a frozen baseline and burn it down.

@@ -10,6 +10,8 @@ public class RestfulRouteAnalyzerTests
         public sealed class HttpGetAttribute : Attribute { public HttpGetAttribute(string template) { } }
         public sealed class HttpPostAttribute : Attribute { public HttpPostAttribute(string template) { } }
         public sealed class HttpDeleteAttribute : Attribute { public HttpDeleteAttribute(string template) { } }
+        public sealed class HttpPutAttribute : Attribute { public HttpPutAttribute(string template) { } }
+        public sealed class HttpPatchAttribute : Attribute { public HttpPatchAttribute(string template) { } }
         public abstract class EndpointBase
         {
             protected void Get(params string[] routes) { }
@@ -27,6 +29,16 @@ public class RestfulRouteAnalyzerTests
     [InlineData("public class CreateOrder : EndpointBase { public void Configure() { Post(\"/orders/create\"); } }")]
     [InlineData("public class GetOrder : EndpointBase { public void Configure() { Routes(\"/orders/{id}\", \"/orders/get/{id}\"); } }")]
     [InlineData("public class ListOrders : EndpointBase { public void Configure() { this.Get(\"/TenantOrders/list/all\"); } }")]
+    [InlineData("[Route(\"[controller]/[action]\")] public class OrdersController { }")]
+    [InlineData("[Route(\"api/[Action]\")] public class UsersController { }")]
+    [InlineData("public class OrdersController { [HttpGet(\"orders/getall\")] public void Read() { } }")]
+    [InlineData("public class OrdersController { [HttpGet(\"orders/getbyid/{id}\")] public void Read() { } }")]
+    [InlineData("public class MailController { [HttpPost(\"mail/sendemail\")] public void Send() { } }")]
+    [InlineData("public class UsersController { [HttpPut(\"users/{id}/addclaim\")] public void Add() { } }")]
+    [InlineData("public class UsersController { [HttpGet(\"searchusers\")] public void Find() { } }")]
+    [InlineData("public class OrdersController { [HttpGet(\"orders/listall\")] public void Read() { } }")]
+    [InlineData("public class OrdersController { [HttpPatch(\"orders/{id}/savechanges\")] public void Save() { } }")]
+    [InlineData("public class JobsController { [HttpPost(\"jobs/runjob\")] public void Start() { } }")]
     public async Task Analyze_WithActionWordRouteSegment_ReportsDlz0014(string source)
     {
         var ids = await PatternRunner.IdsAsync(Prelude + source);
@@ -43,6 +55,12 @@ public class RestfulRouteAnalyzerTests
     [InlineData("public class JobsController { [HttpPost(\"jobs/{id}/executions\")] public void Start() { } }")]
     [InlineData("public class SetupController { [HttpGet(\"setup/calculator\")] public void Read() { } }")]
     [InlineData("public class GetOrder : EndpointBase { public void Configure() { Get(\"/orders/{id}\"); } }")]
+    [InlineData("public class OrdersController { [HttpDelete(\"orders/deletions\")] public void Read() { } }")]
+    [InlineData("public class FetchersController { [HttpGet(\"fetcher/fetchers\")] public void Read() { } }")]
+    [InlineData("public class OrdersController { [HttpGet(\"orders/createdby/{user}\")] public void Read() { } }")]
+    [InlineData("public class OrdersController { [HttpGet(\"orders/createdon\")] public void Read() { } }")]
+    [InlineData("public class AddressController { [HttpGet(\"address/settlements\")] public void Read() { } }")]
+    [InlineData("public class OrdersController { [HttpPut(\"v1/orders/{id:guid}\")] public void Replace() { } }")]
     public async Task Analyze_WithNounRouteSegment_ReportsNothing(string source)
     {
         var ids = await PatternRunner.IdsAsync(Prelude + source);

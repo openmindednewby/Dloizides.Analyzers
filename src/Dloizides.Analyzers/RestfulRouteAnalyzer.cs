@@ -38,10 +38,11 @@ public sealed class RestfulRouteAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context)
     {
         var attribute = (AttributeSyntax)context.Node;
-        var template = attribute.ArgumentList?.Arguments.FirstOrDefault(argument => argument.NameEquals is null && argument.NameColon is null);
-        if (template is null || !RouteAttributes.Contains(AttributeName(attribute.Name)))
+        if (!RouteAttributes.Contains(AttributeName(attribute.Name)))
             return;
-        Check(context, template.Expression);
+        var template = attribute.ArgumentList?.Arguments.FirstOrDefault(argument => argument.NameEquals is null && argument.NameColon is null);
+        if (template is not null)
+            Check(context, template.Expression);
     }
 
     private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
@@ -65,7 +66,13 @@ public sealed class RestfulRouteAnalyzer : DiagnosticAnalyzer
 
     private static string AttributeName(NameSyntax name)
     {
-        var text = name is QualifiedNameSyntax qualified ? qualified.Right.Identifier.ValueText : name.ToString();
+        var text = name switch
+        {
+            QualifiedNameSyntax qualified => qualified.Right.Identifier.ValueText,
+            AliasQualifiedNameSyntax aliased => aliased.Name.Identifier.ValueText,
+            SimpleNameSyntax simple => simple.Identifier.ValueText,
+            _ => string.Empty,
+        };
         return text.EndsWith(AttributeSuffix, StringComparison.Ordinal) ? text.Substring(0, text.Length - AttributeSuffix.Length) : text;
     }
 
