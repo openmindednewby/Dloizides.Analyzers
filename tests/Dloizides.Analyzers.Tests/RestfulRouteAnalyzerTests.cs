@@ -39,6 +39,8 @@ public class RestfulRouteAnalyzerTests
     [InlineData("public class OrdersController { [HttpGet(\"orders/listall\")] public void Read() { } }")]
     [InlineData("public class OrdersController { [HttpPatch(\"orders/{id}/savechanges\")] public void Save() { } }")]
     [InlineData("public class JobsController { [HttpPost(\"jobs/runjob\")] public void Start() { } }")]
+    [InlineData("public class UsersController { [HttpPut(\"users/{id}/setpassword\")] public void Change() { } }")]
+    [InlineData("public class UsersController { [HttpPut(\"users/{id}/setstatus\")] public void Change() { } }")]
     public async Task Analyze_WithActionWordRouteSegment_ReportsDlz0014(string source)
     {
         var ids = await PatternRunner.IdsAsync(Prelude + source);
@@ -61,6 +63,9 @@ public class RestfulRouteAnalyzerTests
     [InlineData("public class OrdersController { [HttpGet(\"orders/createdon\")] public void Read() { } }")]
     [InlineData("public class AddressController { [HttpGet(\"address/settlements\")] public void Read() { } }")]
     [InlineData("public class OrdersController { [HttpPut(\"v1/orders/{id:guid}\")] public void Replace() { } }")]
+    [InlineData("public class SetpointsController { [HttpGet(\"setpoints\")] public void Read() { } }")]
+    [InlineData("public class SetpointsController { [HttpGet(\"setpoints/executioners/settings\")] public void Read() { } }")]
+    [InlineData("public class SetpointsController { [HttpGet(\"csp/setpoints\")] public void Read() { } }")]
     public async Task Analyze_WithNounRouteSegment_ReportsNothing(string source)
     {
         var ids = await PatternRunner.IdsAsync(Prelude + source);

@@ -22,7 +22,7 @@ public static class ActionRouteSegment
         StringComparer.Ordinal, "", "by", "on", "at", "date", "time", "from", "to");
 
     private static readonly ImmutableArray<string> NounPrefixes = ImmutableArray.Create(
-        "setting", "setup", "settle", "address", "listing", "listen", "runtime", "runner", "editor", "edition");
+        "setting", "setpoint", "setup", "settle", "address", "listing", "listen", "runtime", "runner", "editor", "edition");
 
     /// <summary>Returns the offending segment of <paramref name="route"/>, or null when every segment is a noun.</summary>
     public static string? Find(string route) => route.Split('/').FirstOrDefault(IsAction);

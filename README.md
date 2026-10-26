@@ -87,7 +87,7 @@ Action words: get, add, list, search, save, send, edit, set, run, create, update
 |---|---|
 | the rest is a noun ending: s, r, rs, er, ers, es, ion, ions, or, ors, al, ing, ings | `updates`, `fetcher`, `fetchers`, `inserts`, `lists` |
 | the rest is a participle `d`/`ed`, alone or followed by by, on, at, date, time, from, to | `createdby`, `createdon`, `updatedat`, `added` |
-| the token starts with a noun: setting, setup, settle, address, listing, listen, runtime, runner, editor, edition | `settings`, `setup`, `settlements`, `address`, `addresses`, `listings`, `runtime-switch` |
+| the token starts with a noun: setting, setpoint, setup, settle, address, listing, listen, runtime, runner, editor, edition | `settings`, `setpoints`, `setup`, `settlements`, `address`, `addresses`, `listings`, `runtime-switch` |
 
 Tokens that do not start with an action word pass: `deletion(s)`, `insertion`, `calculator`, `executions`, `v1`, `{id:guid}`. Residue: a verb that is not the leading token (`bulk-delete`) is not seen; a run-on noun missing from the list (`sendgrid`, `getaway`) is flagged and needs a justified suppression. Constants, interpolated strings and minimal-API `Map*` calls are not read.
 
