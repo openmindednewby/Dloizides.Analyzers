@@ -1,7 +1,7 @@
 <Project>
   <Import Project="$(MSBuildThisFileDirectory)Dloizides.Analyzers.PackRules.targets" />
   <PropertyGroup>
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);$(DloizidesPackRuleIds);DLZ0001;DLZ0002;DLZ0003;DLZ0004;DLZ0005;DLZ0012;DLZ0013;DLZ0014</WarningsNotAsErrors>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);$(DloizidesPackRuleIds);DLZ0001;DLZ0002;DLZ0003;DLZ0004;DLZ0005;DLZ0012;DLZ0013;DLZ0014;DLZ0015</WarningsNotAsErrors>
   </PropertyGroup>
   <Target Name="DloizidesAddPackRuleConfig" BeforeTargets="CoreCompile">
     <ItemGroup>

@@ -99,4 +99,14 @@ public static class PatternDescriptors
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
+
+    /// <summary>A DbContext or IDbContextFactory taken by a class that is not a repository or store.</summary>
+    public static readonly DiagnosticDescriptor RepositoryOnlyDatabase = new(
+        "DLZ0015",
+        "Only repositories touch the database",
+        "'{0}' takes a DbContext: move the query into a *Repository or *Store and inject that instead (REPO-ONLY-1 \"Only repositories touch the database\")",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
 }

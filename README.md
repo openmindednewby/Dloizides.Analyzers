@@ -75,6 +75,10 @@ Referencing this package also brings Meziantou.Analyzer, Microsoft.VisualStudio.
 | DLZ0012 | A class named `*Dto`, `*Command` or `*Event` that derives from `object` is a record (PAT-REVIEW-7) |
 | DLZ0013 | A concrete `*Service`/`*Repository`/`*Handler`/`*Provider`/`*Manager`/`*Client` of the same solution is not constructed with `new` outside Program.cs/Startup.cs, a method taking `IServiceCollection`/`IServiceProvider`/a host builder, a lambda passed to `Add*`/`TryAdd*`/`Configure*`, or the type's own factory (PAT-REVIEW-4) |
 
+## DLZ0015 (REPO-ONLY-1 "Only repositories touch the database")
+
+DLZ0015 (warning, listed in `WarningsNotAsErrors`) reports a constructor parameter (primary constructors included) or a field whose type is a `DbContext` subclass or `IDbContextFactory<T>`, in a type whose name does not end in `Repository` or `Store`. Not reported: `DbContext` subclasses, `IEntityTypeConfiguration<T>` and `IDesignTimeDbContextFactory<T>` implementations, `Migration` and `ModelSnapshot` subclasses, test assemblies (name ends in `Tests`), and compilations without EF Core. A field is reported only when no constructor of its type takes the context, so one class gets one warning. Existing offenders are frozen in the service's `RepositoryOnlyDatabaseRules` exemptions (`Dloizides.ArchitectureTests`).
+
 ## DLZ0014 (REVIEW-THREADS-1 C4 "Routes are RESTful (resource noun + HTTP verb), test fixtures included")
 
 DLZ0014 (warning, listed in `WarningsNotAsErrors`) reports a string-literal route template whose path segment is named after an action. It reads the first positional argument of `[Route]`, `[HttpGet]`, `[HttpPost]`, `[HttpPut]`, `[HttpDelete]`, `[HttpPatch]`, and every string argument of `Get`, `Post`, `Put`, `Delete`, `Patch`, `Routes` called inside a method named `Configure` (FastEndpoints). Test projects are not exempt: a fixture route is a route.
