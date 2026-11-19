@@ -88,6 +88,8 @@ All four are warnings listed in `WarningsNotAsErrors`. Files under `obj/`, `bin/
 
 Baseline: add `<AdditionalFiles Include="$(MSBuildThisFileDirectory)file-size-baseline.txt" />` (for example in `Directory.Build.props`). Each line is `<path relative to the baseline file> <lines>`, for example `src/Orders/OrderService.cs 412`; paths match case-insensitively with `/` or `\`. A listed file may stay at or under its number; lower the number when the file shrinks (DLZ0019 reports a number above the actual count).
 
+Errors: set `<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>` to report DLZ0016-DLZ0019 as errors. It takes effect only when at least one of the three baseline files is an existing AdditionalFile, so a build without them (for example a Docker build that does not copy them) keeps warnings.
+
 The same shrink-only format applies to `linq-syntax-baseline.txt` (DLZ0016) and `member-order-baseline.txt` (DLZ0017), where the number is the allowed violation count in that file. A file at or under its count reports nothing; a file above it reports every violation in it. Each rule reads only its own baseline file.
 
 ## DLZ0015 (REPO-ONLY-1 "Only repositories touch the database")

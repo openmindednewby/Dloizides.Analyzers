@@ -8,4 +8,13 @@
       <EditorConfigFiles Include="$(MSBuildThisFileDirectory)Dloizides.Analyzers.packs.globalconfig" />
     </ItemGroup>
   </Target>
+  <Target Name="DloizidesBaselinedRulesAsErrors" BeforeTargets="CoreCompile" Condition="'$(DloizidesBaselinedRulesAsErrors)' == 'true'">
+    <ItemGroup>
+      <_DloizidesPresentBaseline Include="@(AdditionalFiles)" Condition="Exists('%(FullPath)') And ('%(Filename)%(Extension)' == 'linq-syntax-baseline.txt' Or '%(Filename)%(Extension)' == 'member-order-baseline.txt' Or '%(Filename)%(Extension)' == 'file-size-baseline.txt')" />
+    </ItemGroup>
+    <PropertyGroup Condition="'@(_DloizidesPresentBaseline)' != ''">
+      <WarningsNotAsErrors>$(WarningsNotAsErrors.Replace(';DLZ0016', '').Replace(';DLZ0017', '').Replace(';DLZ0018', '').Replace(';DLZ0019', ''))</WarningsNotAsErrors>
+      <WarningsAsErrors>$(WarningsAsErrors);DLZ0016;DLZ0017;DLZ0018;DLZ0019</WarningsAsErrors>
+    </PropertyGroup>
+  </Target>
 </Project>
