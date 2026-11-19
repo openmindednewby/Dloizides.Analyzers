@@ -57,4 +57,31 @@ public static class Descriptors
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
+
+    public static readonly DiagnosticDescriptor LinqMethodSyntax = new(
+        "DLZ0016",
+        "Use LINQ method syntax",
+        "Rewrite the query expression in method syntax: .Where(...), .Select(...) (LINQ-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
+    public static readonly DiagnosticDescriptor MemberOrder = new(
+        "DLZ0017",
+        "Members in access order",
+        "{1} {2} '{0}' is above the more accessible {3} {2} '{4}': order each kind public, internal, protected internal, protected, private protected, private (MEMBER-ORDER-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
+    public static readonly DiagnosticDescriptor FileSize = new(
+        "DLZ0018",
+        "File stays under 300 lines",
+        "'{0}' has {1} lines; keep it at or under {2} (FILE-SIZE-1: a file listed in file-size-baseline.txt may only shrink)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
 }
