@@ -32,7 +32,8 @@ internal static class PatternRunner
             new RecordContractAnalyzer(),
             new CompositionRootAnalyzer(),
             new RestfulRouteAnalyzer(),
-            new RepositoryOnlyDatabaseAnalyzer());
+            new RepositoryOnlyDatabaseAnalyzer(),
+            new ManagementEndpointAnalyzer());
         var diagnostics = await compilation.WithAnalyzers(analyzers).GetAnalyzerDiagnosticsAsync();
         return diagnostics.Select(d => d.Id).ToList();
     }

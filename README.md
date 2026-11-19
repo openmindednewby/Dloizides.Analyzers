@@ -111,3 +111,7 @@ Action words: get, add, list, search, save, send, edit, set, run, create, update
 Tokens that do not start with an action word pass: `deletion(s)`, `insertion`, `calculator`, `executions`, `v1`, `{id:guid}`. Residue: a verb that is not the leading token (`bulk-delete`) is not seen; a run-on noun missing from the list (`sendgrid`, `getaway`) is flagged and needs a justified suppression. Constants, interpolated strings and minimal-API `Map*` calls are not read.
 
 Measured before shipping (2026-10-26, grep estimate with the same word rules): 3 hits across the SaaS backend services, 2 in PROOViD AMLService. Hence warning, not error; consumers keep a frozen baseline and burn it down.
+
+## DLZ0020 (MGMT-PORT-1 "Management endpoints never share the public port")
+
+DLZ0020 (warning, listed in `WarningsNotAsErrors`) reports a call to `MapMetrics`, `MapPrometheusScrapingEndpoint` or `MapHealthChecks`. Map them through `UsePrometheusMetrics` (Metrics.Client), `MapHealthCheckEndpoints` (ServiceDefaults.HealthChecks) or `MapPlatformHealthChecks` (Dloizides.ServiceDefaults), which answer only on the management port when it is enabled. Not reported: those three package assemblies and test assemblies (name ends in `Tests`).
