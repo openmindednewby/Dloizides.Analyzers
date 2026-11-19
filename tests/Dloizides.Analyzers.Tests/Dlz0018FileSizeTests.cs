@@ -24,7 +24,6 @@ public class Dlz0018FileSizeTests
     [Theory]
     [InlineData(300, "")]
     [InlineData(301, "src/Big.cs 301")]
-    [InlineData(310, "src/Big.cs 320")]
     [InlineData(330, "src\\Big.cs 330")]
     [InlineData(330, "./src/Big.cs 330")]
     [InlineData(330, "src/Other.cs 400\nsrc/Big.cs\t330")]

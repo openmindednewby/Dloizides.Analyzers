@@ -10,7 +10,7 @@ namespace Dloizides.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class FileSizeAnalyzer : DiagnosticAnalyzer
 {
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Descriptors.FileSize);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Descriptors.FileSize, Descriptors.StaleBaseline);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -33,6 +33,8 @@ public sealed class FileSizeAnalyzer : DiagnosticAnalyzer
         if (lines > allowed)
             context.ReportDiagnostic(Diagnostic.Create(
                 Descriptors.FileSize, Location.Create(context.Tree, new TextSpan(0, 0)), Path.GetFileName(path), lines, allowed));
+        else
+            baseline.ReportStale(context, lines);
     }
 
     private static int RawLineCount(SourceText text)

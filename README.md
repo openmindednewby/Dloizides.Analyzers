@@ -75,17 +75,20 @@ Referencing this package also brings Meziantou.Analyzer, Microsoft.VisualStudio.
 | DLZ0012 | A class named `*Dto`, `*Command` or `*Event` that derives from `object` is a record (PAT-REVIEW-7) |
 | DLZ0013 | A concrete `*Service`/`*Repository`/`*Handler`/`*Provider`/`*Manager`/`*Client` of the same solution is not constructed with `new` outside Program.cs/Startup.cs, a method taking `IServiceCollection`/`IServiceProvider`/a host builder, a lambda passed to `Add*`/`TryAdd*`/`Configure*`, or the type's own factory (PAT-REVIEW-4) |
 
-## DLZ0016-DLZ0018 (LINQ-1, MEMBER-ORDER-1, FILE-SIZE-1)
+## DLZ0016-DLZ0019 (LINQ-1, MEMBER-ORDER-1, FILE-SIZE-1, shrink-only baselines)
 
-All three are warnings listed in `WarningsNotAsErrors`. Files under `obj/`, `bin/`, `Migrations/` or `generated/` and `*.g.cs` / `*.Designer.cs` are skipped.
+All four are warnings listed in `WarningsNotAsErrors`. Files under `obj/`, `bin/`, `Migrations/` or `generated/` and `*.g.cs` / `*.Designer.cs` are skipped.
 
 | ID | Reports |
 |---|---|
 | `DLZ0016` | A LINQ query expression (`from x in ... select`); use method syntax. One diagnostic per outermost query (LINQ-1 "Write LINQ in method syntax") |
 | `DLZ0017` | A field, property, method or instance constructor above a more accessible member of the same kind in the same class, struct or record; order is public, internal, protected internal, protected, private protected, private (no modifier = private). Static constructors and explicit interface implementations are skipped. One diagnostic per misplaced member (MEMBER-ORDER-1) |
 | `DLZ0018` | A source file over 300 raw lines (the final newline does not count), or a file over its entry in a `file-size-baseline.txt` AdditionalFile (FILE-SIZE-1 "A file stays under its size limit; big files only shrink") |
+| `DLZ0019` | A baseline entry above the file's actual count (violations for DLZ0016/DLZ0017, lines for DLZ0018): lower the entry to the count, or remove it at 0 |
 
-Baseline: add `<AdditionalFiles Include="$(MSBuildThisFileDirectory)file-size-baseline.txt" />` (for example in `Directory.Build.props`). Each line is `<path relative to the baseline file> <lines>`, for example `src/Orders/OrderService.cs 412`; paths match case-insensitively with `/` or `\`. A listed file may stay at or under its number; lower the number when the file shrinks.
+Baseline: add `<AdditionalFiles Include="$(MSBuildThisFileDirectory)file-size-baseline.txt" />` (for example in `Directory.Build.props`). Each line is `<path relative to the baseline file> <lines>`, for example `src/Orders/OrderService.cs 412`; paths match case-insensitively with `/` or `\`. A listed file may stay at or under its number; lower the number when the file shrinks (DLZ0019 reports a number above the actual count).
+
+The same shrink-only format applies to `linq-syntax-baseline.txt` (DLZ0016) and `member-order-baseline.txt` (DLZ0017), where the number is the allowed violation count in that file. A file at or under its count reports nothing; a file above it reports every violation in it. Each rule reads only its own baseline file.
 
 ## DLZ0015 (REPO-ONLY-1 "Only repositories touch the database")
 

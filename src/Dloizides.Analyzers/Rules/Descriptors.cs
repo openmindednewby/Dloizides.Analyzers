@@ -5,6 +5,15 @@ namespace Dloizides.Analyzers.Rules;
 /// <summary>Diagnostic descriptors for the house comment standard.</summary>
 public static class Descriptors
 {
+    public static readonly DiagnosticDescriptor StaleBaseline = new(
+        "DLZ0019",
+        "Baseline entry above the actual count",
+        "'{0}' has {1} {2} violations but {3} allows {4}: lower the entry to {1}, or remove it at 0 (shrink-only baseline)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
     private const string Category = "Maintainability";
     private const string HelpLink = "https://github.com/openmindednewby/Dloizides.Analyzers#readme";
 
