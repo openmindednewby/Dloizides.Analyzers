@@ -109,4 +109,13 @@ public static class PatternDescriptors
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
+
+    public static readonly DiagnosticDescriptor ManagementEndpoint = new(
+        "DLZ0020",
+        "Management endpoints are mapped by the shared packages",
+        "Do not call {0} here: use UsePrometheusMetrics and MapHealthCheckEndpoints/MapPlatformHealthChecks, which answer only on the management port (MGMT-PORT-1 \"Management endpoints never share the public port\")",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
 }
