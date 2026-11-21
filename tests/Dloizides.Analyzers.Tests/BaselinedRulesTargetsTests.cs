@@ -1,13 +1,8 @@
-using System.Diagnostics;
-using System.Reflection;
-using System.Text.Json;
-
 namespace Dloizides.Analyzers.Tests;
 
 public sealed class BaselinedRulesTargetsTests : IDisposable
 {
     private const string BaselineFile = "member-order-baseline.txt";
-    private const int MsBuildTimeoutMs = 120_000;
 
     private readonly string _directory = Directory.CreateTempSubdirectory("dlz-targets-").FullName;
 
@@ -44,43 +39,9 @@ public sealed class BaselinedRulesTargetsTests : IDisposable
 
     public void Dispose() => Directory.Delete(_directory, recursive: true);
 
-    private static string TargetsPath() =>
-        Path.Combine(
-            typeof(BaselinedRulesTargetsTests).Assembly
-                .GetCustomAttributes<AssemblyMetadataAttribute>()
-                .First(attribute => attribute.Key == "BuildTransitivePath")
-                .Value!,
-            "Dloizides.Analyzers.targets");
-
-    private TargetsProperties Evaluate(string optIn)
-    {
-        var project = Path.Combine(_directory, "probe.proj");
-        File.WriteAllText(project, $"""
-            <Project>
-              <PropertyGroup>
-                <DloizidesBaselinedRulesAsErrors>{optIn}</DloizidesBaselinedRulesAsErrors>
-              </PropertyGroup>
-              <ItemGroup>
-                <AdditionalFiles Include="{Path.Combine(_directory, BaselineFile)}" />
-              </ItemGroup>
-              <Import Project="{TargetsPath()}" />
-              <Target Name="CoreCompile" />
-            </Project>
-            """);
-        var start = new ProcessStartInfo("dotnet", ["msbuild", project, "-t:CoreCompile", "-getProperty:WarningsAsErrors", "-getProperty:WarningsNotAsErrors"])
-        {
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-        };
-        using var process = Process.Start(start)!;
-        var output = process.StandardOutput.ReadToEnd();
-        Assert.True(process.WaitForExit(MsBuildTimeoutMs), "dotnet msbuild did not finish");
-        Assert.True(process.ExitCode == 0, output);
-        var values = JsonDocument.Parse(output).RootElement.GetProperty("Properties");
-        return new TargetsProperties(
-            values.GetProperty("WarningsAsErrors").GetString() ?? string.Empty,
-            values.GetProperty("WarningsNotAsErrors").GetString() ?? string.Empty);
-    }
-
-    private sealed record TargetsProperties(string WarningsAsErrors, string WarningsNotAsErrors);
+    private TargetsProperties Evaluate(string optIn) =>
+        TargetsProbe.Evaluate(
+            _directory,
+            $"<DloizidesBaselinedRulesAsErrors>{optIn}</DloizidesBaselinedRulesAsErrors>",
+            $"<AdditionalFiles Include=\"{Path.Combine(_directory, BaselineFile)}\" />");
 }

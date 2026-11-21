@@ -8,6 +8,15 @@ public static class PatternDescriptors
     /// <summary>The category a [SuppressMessage] for a pattern rule names.</summary>
     public const string Category = "Dloizides.Patterns";
 
+    public static readonly DiagnosticDescriptor ServiceDefaultsGuard = new(
+        "DLZ0021",
+        "Cross-cutting setup comes from ServiceDefaults",
+        "Do not call {0} here: Dloizides.ServiceDefaults sets up authentication, CORS, logging, rate limiting, problem details, compression and exception handling; configure it through its options (SVCDEF-1 \"Cross-cutting setup comes from ServiceDefaults\")",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
     private const string HelpLink = "https://github.com/openmindednewby/Dloizides.Analyzers#pattern-rules";
 
     /// <summary>An HttpClient constructed outside an AddHttpClient registration lambda.</summary>

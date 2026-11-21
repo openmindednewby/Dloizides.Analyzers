@@ -117,3 +117,9 @@ Measured before shipping (2026-10-26, grep estimate with the same word rules): 3
 ## DLZ0020 (MGMT-PORT-1 "Management endpoints never share the public port")
 
 DLZ0020 (warning, listed in `WarningsNotAsErrors`) reports a call to `MapMetrics`, `MapPrometheusScrapingEndpoint` or `MapHealthChecks`. Map them through `UsePrometheusMetrics` (Metrics.Client), `MapHealthCheckEndpoints` (ServiceDefaults.HealthChecks) or `MapPlatformHealthChecks` (Dloizides.ServiceDefaults), which answer only on the management port when it is enabled. Not reported: those three package assemblies and test assemblies (name ends in `Tests`).
+
+## DLZ0021 (SVCDEF-1 "Cross-cutting setup comes from ServiceDefaults")
+
+DLZ0021 reports a call to `AddAuthentication`, `AddJwtBearer`, `AddCors`, `UseSerilog`, `AddRateLimiter`, `AddProblemDetails`, `AddResponseCompression` or `UseExceptionHandler` whose containing type lives under a `Microsoft` or `Serilog` namespace. Dloizides.ServiceDefaults owns that setup; configure it through its options. Not reported: assemblies whose name starts with `Dloizides.ServiceDefaults`, test assemblies (name ends in `Tests`), and same-named methods declared in other namespaces.
+
+Severity: warning, listed in `WarningsNotAsErrors` like DLZ0020, so a service not yet on ServiceDefaults 2.0 keeps building. A service on 2.0 opts in to a build error with `<DloizidesEnableServiceDefaultsGuardErrors>true</DloizidesEnableServiceDefaultsGuardErrors>`.
