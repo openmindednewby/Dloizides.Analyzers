@@ -75,6 +75,14 @@ Referencing this package also brings Meziantou.Analyzer, Microsoft.VisualStudio.
 | DLZ0012 | A class named `*Dto`, `*Command` or `*Event` that derives from `object` is a record (PAT-REVIEW-7) |
 | DLZ0013 | A concrete `*Service`/`*Repository`/`*Handler`/`*Provider`/`*Manager`/`*Client` of the same solution is not constructed with `new` outside Program.cs/Startup.cs, a method taking `IServiceCollection`/`IServiceProvider`/a host builder, a lambda passed to `Add*`/`TryAdd*`/`Configure*`, or the type's own factory (PAT-REVIEW-4) |
 
+## DLZ0024 (FORM-VALID-1 "One validation contract, shared by server and client")
+
+| Rule | Reports |
+|---|---|
+| `DLZ0024` | Inside a `Validator<T>` / `AbstractValidator<T>`, a `RuleFor(x => x.<Username, Password, Email, FirstName, LastName, Phone, Url, ...>)` chain with `Matches(...)`, a `Must(...)` calling `IsMatch`, or `MinimumLength`/`MaximumLength`/`Length` with a number literal or a const of that validator. Use the generated `Valid<Kind>()` from DLoizides.Validation 1.3.0+ instead. |
+
+Shrink-only baseline `validation-drift-baseline.txt` (same `path count` format as below; DLZ0019 reports an entry above the count). With `DloizidesBaselinedRulesAsErrors=true` DLZ0024 becomes an error only when that repo's `validation-drift-baseline.txt` is an existing AdditionalFile, so a service bumps the package first and freezes its baseline second.
+
 ## DLZ0016-DLZ0019 (LINQ-1, MEMBER-ORDER-1, FILE-SIZE-1, shrink-only baselines)
 
 All four are warnings listed in `WarningsNotAsErrors`. Files under `obj/`, `bin/`, `Migrations/` or `generated/` and `*.g.cs` / `*.Designer.cs` are skipped.

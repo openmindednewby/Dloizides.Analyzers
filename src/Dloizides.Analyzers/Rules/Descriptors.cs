@@ -93,4 +93,13 @@ public static class Descriptors
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
+
+    public static readonly DiagnosticDescriptor ValidationDrift = new(
+        "DLZ0024",
+        "Shared field kinds use the shared rule",
+        "'{0}' repeats a shared field rule with '{1}': use .{2}() from DLoizides.Validation (FORM-VALID-1, validation-drift-baseline.txt may only shrink)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
 }
