@@ -83,6 +83,12 @@ Referencing this package also brings Meziantou.Analyzer, Microsoft.VisualStudio.
 
 Shrink-only baseline `validation-drift-baseline.txt` (same `path count` format as below; DLZ0019 reports an entry above the count). With `DloizidesBaselinedRulesAsErrors=true` DLZ0024 becomes an error only when that repo's `validation-drift-baseline.txt` is an existing AdditionalFile, so a service bumps the package first and freezes its baseline second.
 
+## DLZ0025 (MUTABLE-STATIC-1 "No writable static state in production C#; values come through DI or options")
+
+| Rule | Reports |
+|---|---|
+| `DLZ0025` | A static field that is neither `const` nor `readonly` (`[ThreadStatic]` included), or a static property with any setter (`set`, `private set`), in an assembly whose name does not end in `Tests`. Allowed: `const`, `static readonly`, get-only static properties. Take the value through DI or `IOptions<T>`. Warning, listed in `WarningsNotAsErrors`. |
+
 ## DLZ0016-DLZ0019 (LINQ-1, MEMBER-ORDER-1, FILE-SIZE-1, shrink-only baselines)
 
 All four are warnings listed in `WarningsNotAsErrors`. Files under `obj/`, `bin/`, `Migrations/` or `generated/` and `*.g.cs` / `*.Designer.cs` are skipped.

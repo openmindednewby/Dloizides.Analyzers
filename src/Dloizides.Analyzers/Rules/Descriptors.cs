@@ -14,6 +14,15 @@ public static class Descriptors
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
 
+    public static readonly DiagnosticDescriptor MutableStatic = new(
+        "DLZ0025",
+        "No writable static state",
+        "Static {0} '{1}' is writable: make it const or static readonly, or take the value through DI or IOptions<T> (MUTABLE-STATIC-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
     private const string Category = "Maintainability";
     private const string HelpLink = "https://github.com/openmindednewby/Dloizides.Analyzers#readme";
 
