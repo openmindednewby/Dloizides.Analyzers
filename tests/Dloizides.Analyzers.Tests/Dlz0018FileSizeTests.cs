@@ -47,7 +47,8 @@ public class Dlz0018FileSizeTests
 
     [Theory]
     [InlineData("/repo/src/obj/Debug/Big.cs")]
-    [InlineData("/repo/src/Migrations/20260101_Init.cs")]
+    [InlineData("/repo/src/Migrations/20260101_Init.Designer.cs")]
+    [InlineData("/repo/src/Migrations/AppDbContextModelSnapshot.cs")]
     [InlineData("/repo/src/Big.g.cs")]
     [InlineData("/repo/src/Big.Designer.cs")]
     public async Task Analyze_WithLongFileInGeneratedPath_ReportsNothing(string path)
@@ -55,6 +56,16 @@ public class Dlz0018FileSizeTests
         var ids = await HouseRuleRunner.IdsAsync(new FileSizeAnalyzer(), ClassOf(400), path);
 
         Assert.Empty(ids);
+    }
+
+    [Theory]
+    [InlineData("/repo/src/Migrations/20260101_Init.cs")]
+    [InlineData("/repo/src/generated/X.cs")]
+    public async Task Analyze_WithLongHandWrittenMigrationOrGeneratedFolderFile_ReportsDlz0018(string path)
+    {
+        var ids = await HouseRuleRunner.IdsAsync(new FileSizeAnalyzer(), ClassOf(400), path);
+
+        Assert.Equal(new[] { Dlz0018 }, ids);
     }
 
     [Theory]

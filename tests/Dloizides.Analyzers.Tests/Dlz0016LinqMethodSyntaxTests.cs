@@ -44,17 +44,27 @@ public class Dlz0016LinqMethodSyntaxTests
     }
 
     [Theory]
-    [InlineData("/repo/src/Migrations/20260101_Init.cs")]
+    [InlineData("/repo/src/Migrations/20260101_Init.Designer.cs")]
     [InlineData("/repo/src/obj/Debug/Sample.cs")]
     [InlineData("/repo/src/bin/Sample.cs")]
-    [InlineData("/repo/src/Generated/Sample.cs")]
     [InlineData("/repo/src/Sample.g.cs")]
     [InlineData("/repo/src/Sample.Designer.cs")]
-    [InlineData(@"C:\repo\src\Migrations\Init.cs")]
+    [InlineData(@"C:\repo\src\Migrations\AppDbContextModelSnapshot.cs")]
     public async Task Analyze_WithQueryInGeneratedPath_ReportsNothing(string path)
     {
         var ids = await HouseRuleRunner.IdsAsync(new LinqMethodSyntaxAnalyzer(), Prelude + Query + Epilogue, path);
 
         Assert.Empty(ids);
+    }
+
+    [Theory]
+    [InlineData("/repo/src/Migrations/20260101_Init.cs")]
+    [InlineData(@"C:\repo\src\Migrations\20260101_Init.cs")]
+    [InlineData("/repo/src/generated/X.cs")]
+    public async Task Analyze_WithQueryInHandWrittenMigrationOrGeneratedFolder_ReportsDlz0016(string path)
+    {
+        var ids = await HouseRuleRunner.IdsAsync(new LinqMethodSyntaxAnalyzer(), Prelude + Query + Epilogue, path);
+
+        Assert.Equal(new[] { Dlz0016 }, ids);
     }
 }

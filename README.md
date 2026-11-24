@@ -91,7 +91,7 @@ Shrink-only baseline `validation-drift-baseline.txt` (same `path count` format a
 
 ## DLZ0016-DLZ0019 (LINQ-1, MEMBER-ORDER-1, FILE-SIZE-1, shrink-only baselines)
 
-All four are warnings listed in `WarningsNotAsErrors`. Files under `obj/`, `bin/`, `Migrations/` or `generated/` and `*.g.cs` / `*.Designer.cs` are skipped.
+All four are warnings listed in `WarningsNotAsErrors`. Files under `obj/` or `bin/` and `*.g.cs` / `*.Designer.cs` / `*ModelSnapshot.cs` are skipped; hand-written migrations and `generated/` folders are checked.
 
 | ID | Reports |
 |---|---|

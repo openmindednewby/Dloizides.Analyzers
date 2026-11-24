@@ -6,7 +6,7 @@ namespace Dloizides.Analyzers.Rules;
 internal static class GeneratedPath
 {
     private static readonly Regex Pattern = new(
-        @"(^|/)(obj|bin|Migrations|generated)/|\.g\.cs$|\.Designer\.cs$",
+        @"(^|/)(obj|bin)/|\.g\.cs$|\.Designer\.cs$|ModelSnapshot\.cs$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture,
         TimeSpan.FromSeconds(1));
 
