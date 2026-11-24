@@ -45,24 +45,30 @@ internal sealed class ViolationBaseline
 
     public int? Listed(string path) => counts.TryGetValue(GeneratedPath.Normalize(path), out var count) ? count : null;
 
-    public void Report(SyntaxTreeAnalysisContext context, IReadOnlyList<Diagnostic> violations)
+    public void Report(SyntaxTreeAnalysisContext context, IReadOnlyList<Diagnostic> violations) =>
+        Report(context.Tree, context.ReportDiagnostic, violations);
+
+    public void Report(SyntaxTree tree, Action<Diagnostic> report, IReadOnlyList<Diagnostic> violations)
     {
-        if (violations.Count > (Listed(context.Tree.FilePath) ?? 0))
+        if (violations.Count > (Listed(tree.FilePath) ?? 0))
         {
             foreach (var violation in violations)
-                context.ReportDiagnostic(violation);
+                report(violation);
             return;
         }
 
-        ReportStale(context, violations.Count);
+        ReportStale(tree, report, violations.Count);
     }
 
-    public void ReportStale(SyntaxTreeAnalysisContext context, int actual)
+    public void ReportStale(SyntaxTreeAnalysisContext context, int actual) =>
+        ReportStale(context.Tree, context.ReportDiagnostic, actual);
+
+    private void ReportStale(SyntaxTree tree, Action<Diagnostic> report, int actual)
     {
-        var path = context.Tree.FilePath;
+        var path = tree.FilePath;
         if (Listed(path) is int listed && actual < listed)
-            context.ReportDiagnostic(Diagnostic.Create(
-                Descriptors.StaleBaseline, Location.Create(context.Tree, new TextSpan(0, 0)), Path.GetFileName(path), actual, ruleId, fileName, listed));
+            report(Diagnostic.Create(
+                Descriptors.StaleBaseline, Location.Create(tree, new TextSpan(0, 0)), Path.GetFileName(path), actual, ruleId, fileName, listed));
     }
 
     private static void AddEntry(Dictionary<string, int> entries, string root, string line)

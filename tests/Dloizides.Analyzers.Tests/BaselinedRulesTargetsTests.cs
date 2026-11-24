@@ -37,6 +37,21 @@ public sealed class BaselinedRulesTargetsTests : IDisposable
         Assert.Contains("DLZ0017", properties.WarningsNotAsErrors, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void BaselinedRulesAsErrors_WithOptInAndStaticPureBaseline_EscalatesDlz0026()
+    {
+        var staticPure = Path.Combine(_directory, "static-pure-baseline.txt");
+        File.WriteAllText(staticPure, string.Empty);
+
+        var properties = TargetsProbe.Evaluate(
+            _directory,
+            "<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>",
+            $"<AdditionalFiles Include=\"{staticPure}\" />");
+
+        Assert.Contains("DLZ0026;DLZ0019", properties.WarningsAsErrors, StringComparison.Ordinal);
+        Assert.DoesNotContain("DLZ0026", properties.WarningsNotAsErrors, StringComparison.Ordinal);
+    }
+
     public void Dispose() => Directory.Delete(_directory, recursive: true);
 
     private TargetsProperties Evaluate(string optIn) =>

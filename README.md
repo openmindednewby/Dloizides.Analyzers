@@ -89,6 +89,14 @@ Shrink-only baseline `validation-drift-baseline.txt` (same `path count` format a
 |---|---|
 | `DLZ0025` | A static field that is neither `const` nor `readonly` (`[ThreadStatic]` included), or a static property with any setter (`set`, `private set`), in an assembly whose name does not end in `Tests`. Allowed: `const`, `static readonly`, get-only static properties. Take the value through DI or `IOptions<T>`. Warning, listed in `WarningsNotAsErrors`. |
 
+## DLZ0026 (STATIC-PURE-1 "A static class holds only pure stateless methods, extension methods or constants")
+
+| Rule | Reports |
+|---|---|
+| `DLZ0026` | Inside a `static class` (nested ones included), outside assemblies whose name ends in `Tests`: any member of `System.IO.File`, `System.IO.Directory`, `HttpClient` or `Process` (constructors included); a `FileStream` / `StreamReader` / `StreamWriter` constructor whose first parameter is a path string; `DateTime.Now` / `UtcNow` / `Today`, `DateTimeOffset.Now` / `UtcNow` (`Stopwatch` is allowed); `Environment.GetEnvironmentVariable(s)`; any `IConfiguration` member or extension (`GetSection`, indexer, `GetValue`, `Bind`); `IServiceProvider.GetService` / `GetRequiredService` / `GetServices` and the keyed variants. Skipped: extension methods whose `this` parameter is or implements `IServiceCollection`, `IApplicationBuilder`, `WebApplication` or `IHostBuilder` (DI registration). Writable static fields are DLZ0025, not this rule. Warning, listed in `WarningsNotAsErrors`. |
+
+Baseline: `static-pure-baseline.txt` as an AdditionalFile, same shrink-only format as DLZ0016 (allowed violation count per file); DLZ0019 reports an entry above the actual count. With `<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>` and that file present, DLZ0026 and DLZ0019 are errors.
+
 ## DLZ0016-DLZ0019 (LINQ-1, MEMBER-ORDER-1, FILE-SIZE-1, shrink-only baselines)
 
 All four are warnings listed in `WarningsNotAsErrors`. Files under `obj/` or `bin/` and `*.g.cs` / `*.Designer.cs` / `*ModelSnapshot.cs` are skipped; hand-written migrations and `generated/` folders are checked.

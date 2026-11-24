@@ -1,7 +1,7 @@
 <Project>
   <Import Project="$(MSBuildThisFileDirectory)Dloizides.Analyzers.PackRules.targets" />
   <PropertyGroup>
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);$(DloizidesPackRuleIds);DLZ0001;DLZ0002;DLZ0003;DLZ0004;DLZ0005;DLZ0012;DLZ0013;DLZ0014;DLZ0015;DLZ0016;DLZ0017;DLZ0018;DLZ0019;DLZ0020;DLZ0021;DLZ0024;DLZ0025</WarningsNotAsErrors>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);$(DloizidesPackRuleIds);DLZ0001;DLZ0002;DLZ0003;DLZ0004;DLZ0005;DLZ0012;DLZ0013;DLZ0014;DLZ0015;DLZ0016;DLZ0017;DLZ0018;DLZ0019;DLZ0020;DLZ0021;DLZ0024;DLZ0025;DLZ0026</WarningsNotAsErrors>
   </PropertyGroup>
   <Target Name="DloizidesAddPackRuleConfig" BeforeTargets="CoreCompile">
     <ItemGroup>
@@ -24,6 +24,15 @@
     <PropertyGroup Condition="'@(_DloizidesValidationDriftBaseline)' != ''">
       <WarningsNotAsErrors>$(WarningsNotAsErrors.Replace(';DLZ0024', ''))</WarningsNotAsErrors>
       <WarningsAsErrors>$(WarningsAsErrors);DLZ0024</WarningsAsErrors>
+    </PropertyGroup>
+  </Target>
+  <Target Name="DloizidesStaticPureAsErrors" BeforeTargets="CoreCompile" Condition="'$(DloizidesBaselinedRulesAsErrors)' == 'true'">
+    <ItemGroup>
+      <_DloizidesStaticPureBaseline Include="@(AdditionalFiles)" Condition="Exists('%(FullPath)') And '%(Filename)%(Extension)' == 'static-pure-baseline.txt'" />
+    </ItemGroup>
+    <PropertyGroup Condition="'@(_DloizidesStaticPureBaseline)' != ''">
+      <WarningsNotAsErrors>$(WarningsNotAsErrors.Replace(';DLZ0026', '').Replace(';DLZ0019', ''))</WarningsNotAsErrors>
+      <WarningsAsErrors>$(WarningsAsErrors);DLZ0026;DLZ0019</WarningsAsErrors>
     </PropertyGroup>
   </Target>
   <Target Name="DloizidesServiceDefaultsGuardAsErrors" BeforeTargets="CoreCompile" Condition="'$(DloizidesEnableServiceDefaultsGuardErrors)' == 'true'">

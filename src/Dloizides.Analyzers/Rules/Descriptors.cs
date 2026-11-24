@@ -23,6 +23,15 @@ public static class Descriptors
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
 
+    public static readonly DiagnosticDescriptor StaticPure = new(
+        "DLZ0026",
+        "A static class holds only pure stateless code",
+        "Static class '{0}' {1} through '{2}': move it into an injected service, or pass the value in as a parameter (STATIC-PURE-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
     private const string Category = "Maintainability";
     private const string HelpLink = "https://github.com/openmindednewby/Dloizides.Analyzers#readme";
 
