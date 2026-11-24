@@ -14,6 +14,15 @@ public static class Descriptors
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
 
+    public static readonly DiagnosticDescriptor BaselineOverCount = new(
+        "DLZ0027",
+        "Baselined file above its count",
+        "'{0}' has {1} {2} violations but {3} allows {4}: fix {5} of those reported, most likely the ones in your change",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
     public static readonly DiagnosticDescriptor MutableStatic = new(
         "DLZ0025",
         "No writable static state",

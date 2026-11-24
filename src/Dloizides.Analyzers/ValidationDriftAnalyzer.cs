@@ -39,7 +39,7 @@ public sealed class ValidationDriftAnalyzer : DiagnosticAnalyzer
     private static readonly ImmutableHashSet<string> ValidatorBases = ImmutableHashSet.Create(StringComparer.Ordinal, "Validator", "AbstractValidator");
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(Descriptors.ValidationDrift, Descriptors.StaleBaseline);
+        ImmutableArray.Create(Descriptors.ValidationDrift, Descriptors.StaleBaseline, Descriptors.BaselineOverCount);
 
     public override void Initialize(AnalysisContext context)
     {

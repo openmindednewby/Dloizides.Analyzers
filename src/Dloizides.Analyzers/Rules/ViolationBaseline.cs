@@ -50,10 +50,13 @@ internal sealed class ViolationBaseline
 
     public void Report(SyntaxTree tree, Action<Diagnostic> report, IReadOnlyList<Diagnostic> violations)
     {
-        if (violations.Count > (Listed(tree.FilePath) ?? 0))
+        var listed = Listed(tree.FilePath) ?? 0;
+        if (violations.Count > listed)
         {
             foreach (var violation in violations)
                 report(violation);
+            if (listed > 0)
+                ReportOverCount(tree, report, violations.Count, listed);
             return;
         }
 
@@ -70,6 +73,10 @@ internal sealed class ViolationBaseline
             report(Diagnostic.Create(
                 Descriptors.StaleBaseline, Location.Create(tree, new TextSpan(0, 0)), Path.GetFileName(path), actual, ruleId, fileName, listed));
     }
+
+    private void ReportOverCount(SyntaxTree tree, Action<Diagnostic> report, int actual, int listed) =>
+        report(Diagnostic.Create(
+            Descriptors.BaselineOverCount, Location.Create(tree, new TextSpan(0, 0)), Path.GetFileName(tree.FilePath), actual, ruleId, fileName, listed, actual - listed));
 
     private static void AddEntry(Dictionary<string, int> entries, string root, string line)
     {

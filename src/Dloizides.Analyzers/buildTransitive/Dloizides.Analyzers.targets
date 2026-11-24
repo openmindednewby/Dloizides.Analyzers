@@ -1,7 +1,7 @@
 <Project>
   <Import Project="$(MSBuildThisFileDirectory)Dloizides.Analyzers.PackRules.targets" />
   <PropertyGroup>
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);$(DloizidesPackRuleIds);DLZ0001;DLZ0002;DLZ0003;DLZ0004;DLZ0005;DLZ0012;DLZ0013;DLZ0014;DLZ0015;DLZ0016;DLZ0017;DLZ0018;DLZ0019;DLZ0020;DLZ0021;DLZ0024;DLZ0025;DLZ0026</WarningsNotAsErrors>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);$(DloizidesPackRuleIds);DLZ0001;DLZ0002;DLZ0003;DLZ0004;DLZ0005;DLZ0012;DLZ0013;DLZ0014;DLZ0015;DLZ0016;DLZ0017;DLZ0018;DLZ0019;DLZ0020;DLZ0021;DLZ0024;DLZ0025;DLZ0026;DLZ0027</WarningsNotAsErrors>
   </PropertyGroup>
   <Target Name="DloizidesAddPackRuleConfig" BeforeTargets="CoreCompile">
     <ItemGroup>
@@ -13,8 +13,8 @@
       <_DloizidesPresentBaseline Include="@(AdditionalFiles)" Condition="Exists('%(FullPath)') And ('%(Filename)%(Extension)' == 'linq-syntax-baseline.txt' Or '%(Filename)%(Extension)' == 'member-order-baseline.txt' Or '%(Filename)%(Extension)' == 'file-size-baseline.txt')" />
     </ItemGroup>
     <PropertyGroup Condition="'@(_DloizidesPresentBaseline)' != ''">
-      <WarningsNotAsErrors>$(WarningsNotAsErrors.Replace(';DLZ0016', '').Replace(';DLZ0017', '').Replace(';DLZ0018', '').Replace(';DLZ0019', ''))</WarningsNotAsErrors>
-      <WarningsAsErrors>$(WarningsAsErrors);DLZ0016;DLZ0017;DLZ0018;DLZ0019</WarningsAsErrors>
+      <WarningsNotAsErrors>$(WarningsNotAsErrors.Replace(';DLZ0016', '').Replace(';DLZ0017', '').Replace(';DLZ0018', '').Replace(';DLZ0019', '').Replace(';DLZ0027', ''))</WarningsNotAsErrors>
+      <WarningsAsErrors>$(WarningsAsErrors);DLZ0016;DLZ0017;DLZ0018;DLZ0019;DLZ0027</WarningsAsErrors>
     </PropertyGroup>
   </Target>
   <Target Name="DloizidesValidationDriftAsErrors" BeforeTargets="CoreCompile" Condition="'$(DloizidesBaselinedRulesAsErrors)' == 'true'">
@@ -31,8 +31,8 @@
       <_DloizidesStaticPureBaseline Include="@(AdditionalFiles)" Condition="Exists('%(FullPath)') And '%(Filename)%(Extension)' == 'static-pure-baseline.txt'" />
     </ItemGroup>
     <PropertyGroup Condition="'@(_DloizidesStaticPureBaseline)' != ''">
-      <WarningsNotAsErrors>$(WarningsNotAsErrors.Replace(';DLZ0026', '').Replace(';DLZ0019', ''))</WarningsNotAsErrors>
-      <WarningsAsErrors>$(WarningsAsErrors);DLZ0026;DLZ0019</WarningsAsErrors>
+      <WarningsNotAsErrors>$(WarningsNotAsErrors.Replace(';DLZ0026', '').Replace(';DLZ0019', '').Replace(';DLZ0027', ''))</WarningsNotAsErrors>
+      <WarningsAsErrors>$(WarningsAsErrors);DLZ0026;DLZ0019;DLZ0027</WarningsAsErrors>
     </PropertyGroup>
   </Target>
   <Target Name="DloizidesServiceDefaultsGuardAsErrors" BeforeTargets="CoreCompile" Condition="'$(DloizidesEnableServiceDefaultsGuardErrors)' == 'true'">

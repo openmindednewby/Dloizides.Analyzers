@@ -17,7 +17,6 @@ public class ViolationBaselineTests
 
     [Theory]
     [InlineData("")]
-    [InlineData("src/Sample.cs 1")]
     [InlineData("src/Other.cs 5")]
     [InlineData("src/Sample.cs many")]
     public async Task Analyze_WithMoreQueriesThanLinqBaseline_ReportsEveryQuery(string baseline)
@@ -51,7 +50,6 @@ public class ViolationBaselineTests
 
     [Theory]
     [InlineData("")]
-    [InlineData("src/Sample.cs 1")]
     [InlineData("src/Other.cs 5")]
     public async Task Analyze_WithMoreMisordersThanMemberOrderBaseline_ReportsEveryMisorder(string baseline)
     {

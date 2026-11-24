@@ -16,7 +16,7 @@ public sealed class StaticPureAnalyzer : DiagnosticAnalyzer
     public const string BaselineFileName = "static-pure-baseline.txt";
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(Descriptors.StaticPure, Descriptors.StaleBaseline);
+        ImmutableArray.Create(Descriptors.StaticPure, Descriptors.StaleBaseline, Descriptors.BaselineOverCount);
 
     public override void Initialize(AnalysisContext context)
     {

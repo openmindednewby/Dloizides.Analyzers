@@ -13,8 +13,9 @@ public sealed class BaselinedRulesTargetsTests : IDisposable
 
         var properties = Evaluate("true");
 
-        Assert.Contains("DLZ0016;DLZ0017;DLZ0018;DLZ0019", properties.WarningsAsErrors, StringComparison.Ordinal);
+        Assert.Contains("DLZ0016;DLZ0017;DLZ0018;DLZ0019;DLZ0027", properties.WarningsAsErrors, StringComparison.Ordinal);
         Assert.DoesNotContain("DLZ0017", properties.WarningsNotAsErrors, StringComparison.Ordinal);
+        Assert.DoesNotContain("DLZ0027", properties.WarningsNotAsErrors, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -24,6 +25,7 @@ public sealed class BaselinedRulesTargetsTests : IDisposable
 
         Assert.DoesNotContain("DLZ0017", properties.WarningsAsErrors, StringComparison.Ordinal);
         Assert.Contains("DLZ0017", properties.WarningsNotAsErrors, StringComparison.Ordinal);
+        Assert.Contains("DLZ0027", properties.WarningsNotAsErrors, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -48,7 +50,7 @@ public sealed class BaselinedRulesTargetsTests : IDisposable
             "<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>",
             $"<AdditionalFiles Include=\"{staticPure}\" />");
 
-        Assert.Contains("DLZ0026;DLZ0019", properties.WarningsAsErrors, StringComparison.Ordinal);
+        Assert.Contains("DLZ0026;DLZ0019;DLZ0027", properties.WarningsAsErrors, StringComparison.Ordinal);
         Assert.DoesNotContain("DLZ0026", properties.WarningsNotAsErrors, StringComparison.Ordinal);
     }
 

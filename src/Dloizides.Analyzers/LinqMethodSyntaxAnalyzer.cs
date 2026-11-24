@@ -13,7 +13,7 @@ public sealed class LinqMethodSyntaxAnalyzer : DiagnosticAnalyzer
     public const string BaselineFileName = "linq-syntax-baseline.txt";
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(Descriptors.LinqMethodSyntax, Descriptors.StaleBaseline);
+        ImmutableArray.Create(Descriptors.LinqMethodSyntax, Descriptors.StaleBaseline, Descriptors.BaselineOverCount);
 
     public override void Initialize(AnalysisContext context)
     {

@@ -15,7 +15,7 @@ public sealed class MemberOrderAnalyzer : DiagnosticAnalyzer
     public const string BaselineFileName = "member-order-baseline.txt";
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(Descriptors.MemberOrder, Descriptors.StaleBaseline);
+        ImmutableArray.Create(Descriptors.MemberOrder, Descriptors.StaleBaseline, Descriptors.BaselineOverCount);
 
     public override void Initialize(AnalysisContext context)
     {

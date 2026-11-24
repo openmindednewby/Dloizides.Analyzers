@@ -4,6 +4,7 @@ public class Dlz0024ValidationDriftTests
 {
     private const string Dlz0024 = "DLZ0024";
     private const string Dlz0019 = "DLZ0019";
+    private const string Dlz0027 = "DLZ0027";
     private const string SourcePath = "/repo/src/Accounts/RegisterValidator.cs";
     private const string BaselinePath = "/repo/validation-drift-baseline.txt";
     private const string Stubs =
@@ -62,14 +63,14 @@ public class Dlz0024ValidationDriftTests
     }
 
     [Fact]
-    public async Task Analyze_WithNewDriftAboveBaselineCount_ReportsEveryDrift()
+    public async Task Analyze_WithNewDriftAboveBaselineCount_ReportsEveryDriftAndDlz0027()
     {
         var baseline = new InMemoryAdditionalText(BaselinePath, "src/Accounts/RegisterValidator.cs 1");
         var rules = Drift + "\n        RuleFor(x => x.Password).MinimumLength(8);";
 
         var ids = await HouseRuleRunner.IdsAsync(new ValidationDriftAnalyzer(), Stubs + Open + rules + Close, SourcePath, baseline);
 
-        Assert.Equal(new[] { Dlz0024, Dlz0024 }, ids);
+        Assert.Equal(new[] { Dlz0024, Dlz0024, Dlz0027 }, ids.Order(StringComparer.Ordinal));
     }
 
     [Fact]
