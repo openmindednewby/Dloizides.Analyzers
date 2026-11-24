@@ -11,12 +11,24 @@ public class Dlz0026StaticPureTests
             public static class ServiceProviderServiceExtensions { public static T GetRequiredService<T>(this System.IServiceProvider provider) => default!; }
         }
         namespace Microsoft.Extensions.Configuration { public interface IConfiguration { string this[string key] { get; } } }
-        namespace Microsoft.AspNetCore.Builder { public interface IApplicationBuilder { System.IServiceProvider ApplicationServices { get; } } }
+        namespace Microsoft.AspNetCore.Builder
+        {
+            public interface IApplicationBuilder { System.IServiceProvider ApplicationServices { get; } }
+            public sealed class WebApplicationBuilder { public Microsoft.Extensions.Configuration.IConfiguration Configuration => default!; }
+        }
+        namespace Microsoft.AspNetCore.Routing { public interface IEndpointRouteBuilder { System.IServiceProvider ServiceProvider { get; } } }
+        namespace Microsoft.Extensions.Hosting { public interface IHostApplicationBuilder { Microsoft.Extensions.Configuration.IConfiguration Configuration { get; } } }
+        namespace Microsoft.Extensions.Options { public sealed class OptionsBuilder<T> { } }
+        namespace Jobs { public sealed class JobsBuilder { public Microsoft.Extensions.DependencyInjection.IServiceCollection Services => default!; } }
         namespace Sample
         {
             using Microsoft.Extensions.Configuration;
             using Microsoft.Extensions.DependencyInjection;
             using Microsoft.AspNetCore.Builder;
+            using Microsoft.AspNetCore.Routing;
+            using Microsoft.Extensions.Hosting;
+            using Microsoft.Extensions.Options;
+            using Jobs;
 
         """;
     private const string Close = "\n}\n";
@@ -39,6 +51,10 @@ public class Dlz0026StaticPureTests
     [InlineData("public static class Locator { public static object Find(System.IServiceProvider provider) => provider.GetService(typeof(object)); }")]
     [InlineData("public static class Text { public static bool IsLate(this string value) => System.DateTime.UtcNow.Hour > value.Length; }")]
     [InlineData("public sealed class Outer { public static class Inner { public static object Stamp() => System.DateTime.UtcNow; } }")]
+    [InlineData("public static class Text { public static object Stamp(this System.Text.StringBuilder text) => System.DateTime.UtcNow; }")]
+    [InlineData("public static class Setup { public static IServiceCollection AddShop(this IServiceCollection services) { _ = Stamp(); return services; } public static object Handle() => Stamp(); private static object Stamp() => System.DateTime.UtcNow; }")]
+    [InlineData("public static class Setup { public static IServiceCollection AddShop(this IServiceCollection services) { System.Func<object> handler = Stamp; return services; } private static object Stamp() => System.DateTime.UtcNow; }")]
+    [InlineData("public static class Setup { public static IServiceCollection AddShop(this IServiceCollection services) { _ = Stamp(); return services; } internal static object Stamp() => System.DateTime.UtcNow; }")]
     public async Task Analyze_WithImpureAccessInStaticClass_ReportsDlz0026(string type)
     {
         var ids = await HouseRuleRunner.IdsAsync(new StaticPureAnalyzer(), Stubs + type + Close);
@@ -54,6 +70,15 @@ public class Dlz0026StaticPureTests
     [InlineData("public sealed class Clock { public object Stamp() => System.DateTime.UtcNow; }")]
     [InlineData("public static class Registration { public static IServiceCollection AddShop(this IServiceCollection services, IConfiguration configuration) { _ = configuration[\"X\"]; _ = System.Environment.GetEnvironmentVariable(\"Y\"); return services; } }")]
     [InlineData("public static class Pipeline { public static IApplicationBuilder UseShop(this IApplicationBuilder app) { _ = app.ApplicationServices.GetRequiredService<object>(); return app; } }")]
+    [InlineData("public static class Routes { public static IEndpointRouteBuilder MapShop(this IEndpointRouteBuilder endpoints) { _ = endpoints.ServiceProvider.GetRequiredService<object>(); return endpoints; } }")]
+    [InlineData("public static class Hosting { public static T AddShop<T>(this T builder) where T : IHostApplicationBuilder { _ = builder.Configuration[\"X\"]; return builder; } }")]
+    [InlineData("public static class Web { public static WebApplicationBuilder AddShop(this WebApplicationBuilder builder) { _ = builder.Configuration[\"X\"]; return builder; } }")]
+    [InlineData("public static class Opts { public static OptionsBuilder<int> BindShop(this OptionsBuilder<int> builder, IConfiguration configuration) { _ = configuration[\"X\"]; return builder; } }")]
+    [InlineData("public static class Backplane { public static JobsBuilder UseShop(this JobsBuilder builder, System.IServiceProvider provider) { _ = provider.GetRequiredService<object>(); return builder; } }")]
+    [InlineData("public static class Setup { public static IServiceCollection AddShop(this IServiceCollection services) { AddClient(services); return services; } private static void AddClient(IServiceCollection services) => Configure(new System.Net.Http.HttpClient()); private static void Configure(System.Net.Http.HttpClient client) => client.Timeout = System.TimeSpan.Zero; }")]
+    [InlineData("public static class Setup { public static IServiceCollection AddShop(this IServiceCollection services, IConfiguration configuration) { _ = Read(configuration); return services; } private static string Read(IConfiguration configuration) => configuration[\"X\"]; }")]
+    [InlineData("public static class Setup { public static IServiceCollection AddShop(this IServiceCollection services) { System.Action<System.Net.Http.HttpClient> configure = client => client.Timeout = System.TimeSpan.Zero; return services; } }")]
+    [InlineData("public static class Setup { public static IServiceCollection AddShop(this IServiceCollection services) { System.Func<System.IServiceProvider, object> factory = Make; return services; } private static object Make(System.IServiceProvider provider) => provider.GetRequiredService<object>(); }")]
     public async Task Analyze_WithPureStaticOrHostSetup_ReportsNothing(string type)
     {
         var ids = await HouseRuleRunner.IdsAsync(new StaticPureAnalyzer(), Stubs + type + Close);

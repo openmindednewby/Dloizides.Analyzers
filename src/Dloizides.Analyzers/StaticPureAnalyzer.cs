@@ -45,13 +45,16 @@ public sealed class StaticPureAnalyzer : DiagnosticAnalyzer
         baseline.Report(tree, context.ReportDiagnostic, violations);
     }
 
-    private static IEnumerable<Diagnostic> Violations(SemanticModel model, ClassDeclarationSyntax type, CancellationToken cancellationToken) =>
-        type.Members
-            .Where(member => member is not BaseTypeDeclarationSyntax && !StaticPureSymbols.IsHostSetup(model, member, cancellationToken))
+    private static IEnumerable<Diagnostic> Violations(SemanticModel model, ClassDeclarationSyntax type, CancellationToken cancellationToken)
+    {
+        var compositionRoot = CompositionRootMembers.Of(model, type, cancellationToken);
+        return type.Members
+            .Where(member => member is not BaseTypeDeclarationSyntax && !compositionRoot.Contains(member))
             .SelectMany(member => member.DescendantNodes())
             .Where(node => node is SimpleNameSyntax or BaseObjectCreationExpressionSyntax or ElementAccessExpressionSyntax)
             .Select(node => ToDiagnostic(type, node, model.GetSymbolInfo(node, cancellationToken).Symbol))
             .OfType<Diagnostic>();
+    }
 
     private static Diagnostic? ToDiagnostic(ClassDeclarationSyntax type, SyntaxNode node, ISymbol? symbol)
     {

@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Dloizides.Analyzers.Rules;
 
@@ -16,14 +14,6 @@ internal static class StaticPureSymbols
     private const string ResolvesServices = "resolves services";
     private const string EnvironmentVariablePrefix = "GetEnvironmentVariable";
 
-    private static readonly HashSet<string> HostTypes = new(StringComparer.Ordinal)
-    {
-        "Microsoft.Extensions.DependencyInjection.IServiceCollection",
-        "Microsoft.AspNetCore.Builder.IApplicationBuilder",
-        "Microsoft.AspNetCore.Builder.WebApplication",
-        "Microsoft.Extensions.Hosting.IHostBuilder",
-    };
-
     private static readonly HashSet<string> IoTypes = new(StringComparer.Ordinal) { "System.IO.File", "System.IO.Directory", "System.Net.Http.HttpClient", "System.Diagnostics.Process" };
     private static readonly HashSet<string> PathStreamTypes = new(StringComparer.Ordinal) { "System.IO.FileStream", "System.IO.StreamReader", "System.IO.StreamWriter" };
     private static readonly HashSet<string> DateTimeClock = new(StringComparer.Ordinal) { "Now", "UtcNow", "Today" };
@@ -33,11 +23,6 @@ internal static class StaticPureSymbols
 
     private static readonly HashSet<string> ConfigurationTypes = new(StringComparer.Ordinal) { "Microsoft.Extensions.Configuration.IConfiguration" };
     private static readonly HashSet<string> ServiceProviderTypes = new(StringComparer.Ordinal) { "System.IServiceProvider" };
-
-    public static bool IsHostSetup(SemanticModel model, MemberDeclarationSyntax member, CancellationToken cancellationToken) =>
-        member is MethodDeclarationSyntax method
-        && model.GetDeclaredSymbol(method, cancellationToken) is IMethodSymbol { IsExtensionMethod: true } symbol
-        && IsOrImplements(symbol.Parameters[0].Type, HostTypes);
 
     public static string? Effect(ISymbol? symbol) => symbol switch
     {
