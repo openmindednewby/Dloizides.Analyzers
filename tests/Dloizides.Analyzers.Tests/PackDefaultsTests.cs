@@ -8,7 +8,8 @@ namespace Dloizides.Analyzers.Tests;
 public class PackDefaultsTests
 {
     private const string AwaitInMisnamedFile = "using System.Threading.Tasks;\npublic sealed class Worker\n{\n    public async Task RunAsync() => await Task.Delay(1);\n}\n";
-    private const string UnforwardedToken = "using System.Threading;\nusing System.Threading.Tasks;\npublic sealed class Worker\n{\n    public Task RunAsync(CancellationToken cancellationToken) => Task.Delay(1);\n}\n";
+    private const string OpenPublicClass = "namespace Sample { public interface IClock { int Now(); } public class Clock : IClock { public int Now() => 0; } }";
+    private const string UnforwardedToken ="using System.Threading;\nusing System.Threading.Tasks;\npublic sealed class Worker\n{\n    public Task RunAsync(CancellationToken cancellationToken) => Task.Delay(1);\n}\n";
 
     [Theory]
     [InlineData("MA0004")]
@@ -56,17 +57,42 @@ public class PackDefaultsTests
         Assert.Contains(diagnostics, diagnostic => diagnostic.Id == "MA0040" && diagnostic.Severity == DiagnosticSeverity.Error);
     }
 
+    [Fact]
+    public async Task Analyze_WithShippedConfigAndOpenPublicClass_ReportsMa0053()
+    {
+        var options = PackRuleFiles.ShippedOptions();
+
+        var diagnostics = await MeziantouDiagnosticsAsync(OpenPublicClass, PackRuleFiles.ShippedSeverities(), options);
+
+        Assert.Contains(diagnostics, diagnostic => diagnostic.Id == "MA0053");
+    }
+
+    [Fact]
+    public async Task Analyze_WithoutPublicClassOption_DoesNotReportMa0053()
+    {
+        var options = ImmutableDictionary<string, string>.Empty;
+
+        var diagnostics = await MeziantouDiagnosticsAsync(OpenPublicClass, PackRuleFiles.ShippedSeverities(), options);
+
+        Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == "MA0053");
+    }
+
     private static async Task<IReadOnlyList<string>> MeziantouIdsAsync(ImmutableDictionary<string, ReportDiagnostic> severities)
     {
         var diagnostics = await MeziantouDiagnosticsAsync(AwaitInMisnamedFile, severities);
         return diagnostics.Select(diagnostic => diagnostic.Id).ToList();
     }
 
-    private static Task<ImmutableArray<Diagnostic>> MeziantouDiagnosticsAsync(string source, ImmutableDictionary<string, ReportDiagnostic> severities)
+    private static Task<ImmutableArray<Diagnostic>> MeziantouDiagnosticsAsync(
+        string source,
+        ImmutableDictionary<string, ReportDiagnostic> severities,
+        ImmutableDictionary<string, string>? analyzerOptions = null)
     {
         var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Latest), "Sample.cs");
         var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary).WithSpecificDiagnosticOptions(severities);
         var compilation = CSharpCompilation.Create("Shop.Api", new[] { tree }, PatternRunner.References, options);
-        return compilation.WithAnalyzers(PackRuleFiles.Analyzers("MeziantouPath")).GetAnalyzerDiagnosticsAsync();
+        var provider = new GlobalOptionsProvider(analyzerOptions ?? ImmutableDictionary<string, string>.Empty);
+        var analyzerConfig = new AnalyzerOptions(ImmutableArray<AdditionalText>.Empty, provider);
+        return compilation.WithAnalyzers(PackRuleFiles.Analyzers("MeziantouPath"), analyzerConfig).GetAnalyzerDiagnosticsAsync();
     }
 }

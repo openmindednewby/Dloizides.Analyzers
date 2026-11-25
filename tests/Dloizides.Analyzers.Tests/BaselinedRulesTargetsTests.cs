@@ -84,7 +84,25 @@ public sealed class BaselinedRulesTargetsTests : IDisposable
         Assert.DoesNotContain("DLZ0029", properties.WarningsNotAsErrors, StringComparison.Ordinal);
     }
 
-    public void Dispose() => Directory.Delete(_directory, recursive: true);
+    [Theory]
+    [InlineData("doc-contract-baseline.txt", "DLZ0030")]
+    [InlineData("catch-scope-baseline.txt", "DLZ0031")]
+    [InlineData("pair-by-key-baseline.txt", "DLZ0032")]
+    public void BaselinedRulesAsErrors_WithOptInAndRuleBaseline_EscalatesTheRule(string baselineFile, string ruleId)
+    {
+        var baseline = Path.Combine(_directory, baselineFile);
+        File.WriteAllText(baseline, string.Empty);
+
+        var properties = TargetsProbe.Evaluate(
+            _directory,
+            "<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>",
+            $"<AdditionalFiles Include=\"{baseline}\" />");
+
+        Assert.Contains($"{ruleId};DLZ0019;DLZ0027", properties.WarningsAsErrors, StringComparison.Ordinal);
+        Assert.DoesNotContain(ruleId, properties.WarningsNotAsErrors, StringComparison.Ordinal);
+    }
+
+    public void Dispose() =>Directory.Delete(_directory, recursive: true);
 
     private TargetsProperties Evaluate(string optIn) =>
         TargetsProbe.Evaluate(

@@ -16,7 +16,10 @@ internal static class PackRuleFiles
 
     public static readonly string[] RaisedToError = { "MA0040", "CA2016" };
 
+    public static readonly string[] AnalyzerOptionLines = { "MA0053.public_class_should_be_sealed = true" };
+
     private static readonly Regex SeverityLine = new(@"^dotnet_diagnostic\.(\S+)\.severity = (\S+)$", RegexOptions.Multiline);
+    private static readonly Regex OptionLine = new(@"^(?!dotnet_diagnostic\.|is_global|global_level)(\S+) = (\S+)$", RegexOptions.Multiline);
 
     private static readonly string[] PackKeys = { "MeziantouPath", "ThreadingPath", "SonarPath" };
     private static readonly string VbFolder = $"{Path.DirectorySeparatorChar}vb{Path.DirectorySeparatorChar}";
@@ -46,6 +49,8 @@ internal static class PackRuleFiles
             builder.Append("dotnet_diagnostic.").Append(id).Append(".severity = error\n");
         foreach (var id in OffByDefault)
             builder.Append("dotnet_diagnostic.").Append(id).Append(".severity = none\n");
+        foreach (var line in AnalyzerOptionLines)
+            builder.Append(line).Append('\n');
         return builder.ToString();
     }
 
@@ -55,6 +60,10 @@ internal static class PackRuleFiles
     public static ImmutableDictionary<string, ReportDiagnostic> ShippedSeverities() =>
         SeverityLine.Matches(Shipped(GlobalConfigFile))
             .ToImmutableDictionary(match => match.Groups[1].Value, match => Severity(match.Groups[2].Value));
+
+    public static ImmutableDictionary<string, string> ShippedOptions() =>
+        OptionLine.Matches(Shipped(GlobalConfigFile))
+            .ToImmutableDictionary(match => match.Groups[1].Value, match => match.Groups[2].Value, StringComparer.OrdinalIgnoreCase);
 
     public static string Shipped(string fileName) =>
         File.ReadAllText(Path.Combine(Metadata("BuildTransitivePath"), fileName)).Replace("\r\n", "\n", StringComparison.Ordinal);

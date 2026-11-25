@@ -113,6 +113,17 @@ Baseline: `exception-flow-baseline.txt` as an AdditionalFile, same shrink-only f
 
 Baseline: `sealed-record-baseline.txt` as an AdditionalFile, same shrink-only format as DLZ0016; with `<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>` and that file present, DLZ0029, DLZ0019 and DLZ0027 are errors.
 
+## DLZ0030-DLZ0032 and MA0053 (DOC-CONTRACT-1, CATCH-SCOPE-1, PAIR-BY-KEY-1, SEALED-TYPE-1)
+
+| Rule | Reports |
+|---|---|
+| `DLZ0030` | DOC-CONTRACT-1 "Document the contract: a public interface member has the summary; its implementation has none or `<inheritdoc/>`". (a) A method, property, indexer or event of an interface that is public up to the namespace, with no `<summary>`; (b) a class or struct member with its own `<summary>` that implements (implicitly or explicitly) an interface member that has one. Reads `///` and `/** */` with or without `GenerateDocumentationFile`. Baseline `doc-contract-baseline.txt`. |
+| `DLZ0031` | CATCH-SCOPE-1 "A skip-and-continue catch never wraps a shared dependency". A `catch` with no `throw` in it, of a `try` inside a `foreach`/`for`/`while`/`do` of the same method, whose `try` awaits a call on a receiver typed `*Repository` or derived from `Microsoft.EntityFrameworkCore.DbContext` (any step of the receiver chain), or a `SaveChanges*` method. Reported at `catch`. Baseline `catch-scope-baseline.txt`. |
+| `DLZ0032` | PAIR-BY-KEY-1 "Pair results to their inputs by key, never by position". Any `System.Linq.Enumerable.Zip` call (extension or static), at `Zip`. When both sides come from one source, suppress with `[SuppressMessage("Maintainability", "DLZ0032", Justification = "...")]`. Baseline `pair-by-key-baseline.txt`. |
+| `MA0053` | SEALED-TYPE-1 "A type nothing derives from is sealed": the packs globalconfig sets `MA0053.public_class_should_be_sealed = true`, so public classes are reported too (records stay DLZ0029). A repo lowers it in its own `.editorconfig` with the count until it reaches zero. |
+
+All three DLZ rules skip assemblies whose name ends in `Tests` and generated paths, are warnings listed in `WarningsNotAsErrors`, and take their baseline as an AdditionalFile in the DLZ0016 shrink-only format; with `<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>` and the rule's baseline present, that rule, DLZ0019 and DLZ0027 are errors (0.20.0+).
+
 ## CANCEL-FORWARD-1 ("Pass the CancellationToken to every async call that accepts one")
 
 `MA0040` (Meziantou) and `CA2016` (.NET SDK) ship at `error` in `Dloizides.Analyzers.packs.globalconfig` (0.17.0+), so a build fails when a method has a `CancellationToken` in scope and calls an overload that takes one without passing it. A repo that cannot fix its existing calls at bump time lowers them in its own `.editorconfig` and lists the count there until it reaches zero.

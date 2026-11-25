@@ -51,6 +51,42 @@ public static class Descriptors
         helpLinkUri: HelpLink,
         customTags: WellKnownDiagnosticTags.CompilationEnd);
 
+    public static readonly DiagnosticDescriptor InterfaceMemberSummary = new(
+        "DLZ0030",
+        "Document the contract on the interface",
+        "Public interface member '{0}' has no <summary>: the interface member carries the contract (DOC-CONTRACT-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
+    public static readonly DiagnosticDescriptor ImplementationSummary = new(
+        "DLZ0030",
+        "Document the contract on the interface",
+        "'{0}' repeats the summary of '{1}.{0}': remove it or use <inheritdoc/> (DOC-CONTRACT-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
+    public static readonly DiagnosticDescriptor CatchScope = new(
+        "DLZ0031",
+        "A skip-and-continue catch never wraps a shared dependency",
+        "This catch skips and continues inside a loop while its try awaits '{0}', a shared dependency: let that failure stop the loop, or catch only the per-item work (CATCH-SCOPE-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
+    public static readonly DiagnosticDescriptor PairByKey = new(
+        "DLZ0032",
+        "Pair results to their inputs by key, never by position",
+        "Zip pairs two sequences by position: pair by key (ToDictionary, Join), or suppress with a justification when both come from one source (PAIR-BY-KEY-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
     public static readonly DiagnosticDescriptor ExceptionFlow = new(
         "DLZ0028",
         "Never try/catch to test a parse",
