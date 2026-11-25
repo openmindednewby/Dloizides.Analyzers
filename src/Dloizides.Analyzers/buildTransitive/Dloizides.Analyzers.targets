@@ -1,7 +1,7 @@
 <Project>
   <Import Project="$(MSBuildThisFileDirectory)Dloizides.Analyzers.PackRules.targets" />
   <PropertyGroup>
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);$(DloizidesPackRuleIds);DLZ0001;DLZ0002;DLZ0003;DLZ0004;DLZ0005;DLZ0012;DLZ0013;DLZ0014;DLZ0015;DLZ0016;DLZ0017;DLZ0018;DLZ0019;DLZ0020;DLZ0021;DLZ0024;DLZ0025;DLZ0026;DLZ0027;DLZ0028;DLZ0029;DLZ0030;DLZ0031;DLZ0032</WarningsNotAsErrors>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);$(DloizidesPackRuleIds);DLZ0001;DLZ0002;DLZ0003;DLZ0004;DLZ0005;DLZ0012;DLZ0013;DLZ0014;DLZ0015;DLZ0016;DLZ0017;DLZ0018;DLZ0019;DLZ0020;DLZ0021;DLZ0024;DLZ0025;DLZ0026;DLZ0027;DLZ0028;DLZ0029;DLZ0030;DLZ0031;DLZ0032;DLZ0033;DLZ0034</WarningsNotAsErrors>
   </PropertyGroup>
   <Target Name="DloizidesAddPackRuleConfig" BeforeTargets="CoreCompile">
     <ItemGroup>
@@ -78,6 +78,24 @@
     <PropertyGroup Condition="'@(_DloizidesPairByKeyBaseline)' != ''">
       <WarningsNotAsErrors>$(WarningsNotAsErrors.Replace(';DLZ0032', '').Replace(';DLZ0019', '').Replace(';DLZ0027', ''))</WarningsNotAsErrors>
       <WarningsAsErrors>$(WarningsAsErrors);DLZ0032;DLZ0019;DLZ0027</WarningsAsErrors>
+    </PropertyGroup>
+  </Target>
+  <Target Name="DloizidesNarrowOptionsAsErrors" BeforeTargets="CoreCompile" Condition="'$(DloizidesBaselinedRulesAsErrors)' == 'true'">
+    <ItemGroup>
+      <_DloizidesNarrowOptionsBaseline Include="@(AdditionalFiles)" Condition="Exists('%(FullPath)') And '%(Filename)%(Extension)' == 'narrow-options-baseline.txt'" />
+    </ItemGroup>
+    <PropertyGroup Condition="'@(_DloizidesNarrowOptionsBaseline)' != ''">
+      <WarningsNotAsErrors>$(WarningsNotAsErrors.Replace(';DLZ0033', '').Replace(';DLZ0019', '').Replace(';DLZ0027', ''))</WarningsNotAsErrors>
+      <WarningsAsErrors>$(WarningsAsErrors);DLZ0033;DLZ0019;DLZ0027</WarningsAsErrors>
+    </PropertyGroup>
+  </Target>
+  <Target Name="DloizidesReadOnlyParameterAsErrors" BeforeTargets="CoreCompile" Condition="'$(DloizidesBaselinedRulesAsErrors)' == 'true'">
+    <ItemGroup>
+      <_DloizidesReadOnlyParameterBaseline Include="@(AdditionalFiles)" Condition="Exists('%(FullPath)') And '%(Filename)%(Extension)' == 'readonly-param-baseline.txt'" />
+    </ItemGroup>
+    <PropertyGroup Condition="'@(_DloizidesReadOnlyParameterBaseline)' != ''">
+      <WarningsNotAsErrors>$(WarningsNotAsErrors.Replace(';DLZ0034', '').Replace(';DLZ0019', '').Replace(';DLZ0027', ''))</WarningsNotAsErrors>
+      <WarningsAsErrors>$(WarningsAsErrors);DLZ0034;DLZ0019;DLZ0027</WarningsAsErrors>
     </PropertyGroup>
   </Target>
   <Target Name="DloizidesServiceDefaultsGuardAsErrors" BeforeTargets="CoreCompile" Condition="'$(DloizidesEnableServiceDefaultsGuardErrors)' == 'true'">

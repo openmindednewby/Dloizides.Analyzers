@@ -124,6 +124,16 @@ Baseline: `sealed-record-baseline.txt` as an AdditionalFile, same shrink-only fo
 
 All three DLZ rules skip assemblies whose name ends in `Tests` and generated paths, are warnings listed in `WarningsNotAsErrors`, and take their baseline as an AdditionalFile in the DLZ0016 shrink-only format; with `<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>` and the rule's baseline present, that rule, DLZ0019 and DLZ0027 are errors (0.20.0+).
 
+## DLZ0033-DLZ0034 and S3242 (NARROW-OPTIONS-1, READONLY-PARAM-1)
+
+| Rule | Reports |
+|---|---|
+| `DLZ0033` | NARROW-OPTIONS-1 "A class takes IOptions of the smallest settings section it reads". A constructor parameter typed `Microsoft.Extensions.Options` `IOptions<T>`, `IOptionsMonitor<T>` or `IOptionsSnapshot<T>` whose `.Value` / `.CurrentValue` (directly, or through the field or local it is stored in) is only used to read one property, and that property is a settings class (not a string, value type or collection). Any other use of the options or the value (passed on, returned, a method call) reports nothing. Partial types are skipped. Reported at the parameter. Baseline `narrow-options-baseline.txt`. |
+| `DLZ0034` | READONLY-PARAM-1 "A parameter the method only reads is a read-only type". A `List<T>` parameter of a method with a body (any accessibility) whose every use is a `foreach` source, `.Count`, an indexer read or a `System.Linq.Enumerable` extension call. Overrides, virtual/abstract members and interface implementations are skipped. Reported at the parameter. Baseline `readonly-param-baseline.txt`. Added because `S3242` does not report a `List<T>` parameter that is only iterated (proved in `ReadOnlyParameterPackTests`). |
+| `S3242` | Sonar "Method parameters should be declared with base types", raised to `warning` in the packs globalconfig (0.21.0+); listed in `WarningsNotAsErrors` with the other pack rules. |
+
+Both DLZ rules skip assemblies whose name ends in `Tests` and generated paths, are warnings listed in `WarningsNotAsErrors`, and with `<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>` and the rule's baseline present, that rule, DLZ0019 and DLZ0027 are errors.
+
 ## CANCEL-FORWARD-1 ("Pass the CancellationToken to every async call that accepts one")
 
 `MA0040` (Meziantou) and `CA2016` (.NET SDK) ship at `error` in `Dloizides.Analyzers.packs.globalconfig` (0.17.0+), so a build fails when a method has a `CancellationToken` in scope and calls an overload that takes one without passing it. A repo that cannot fix its existing calls at bump time lowers them in its own `.editorconfig` and lists the count there until it reaches zero.

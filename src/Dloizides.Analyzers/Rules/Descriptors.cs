@@ -87,6 +87,24 @@ public static class Descriptors
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
 
+    public static readonly DiagnosticDescriptor NarrowOptions = new(
+        "DLZ0033",
+        "Take IOptions of the smallest settings section",
+        "'{0}' reads only '{1}' of {2}: bind {3} and take IOptions<{3}> instead (NARROW-OPTIONS-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
+    public static readonly DiagnosticDescriptor ReadOnlyParameter = new(
+        "DLZ0034",
+        "A parameter the method only reads is a read-only type",
+        "'{0}' is a List the method only reads: take IReadOnlyList<{1}> (READONLY-PARAM-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
     public static readonly DiagnosticDescriptor ExceptionFlow = new(
         "DLZ0028",
         "Never try/catch to test a parse",

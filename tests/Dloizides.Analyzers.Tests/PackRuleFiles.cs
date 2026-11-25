@@ -14,6 +14,8 @@ internal static class PackRuleFiles
 
     public static readonly string[] OffByDefault = { "MA0004", "MA0048" };
 
+    public static readonly string[] RaisedToWarning = { "S3242" };
+
     public static readonly string[] RaisedToError = { "MA0040", "CA2016" };
 
     public static readonly string[] AnalyzerOptionLines = { "MA0053.public_class_should_be_sealed = true" };
@@ -45,6 +47,8 @@ internal static class PackRuleFiles
         var builder = new StringBuilder("is_global = true\nglobal_level = 50\n");
         foreach (var descriptor in descriptors.Where(IsRaisedToWarning))
             builder.Append("dotnet_diagnostic.").Append(descriptor.Id).Append(".severity = warning\n");
+        foreach (var id in RaisedToWarning)
+            builder.Append("dotnet_diagnostic.").Append(id).Append(".severity = warning\n");
         foreach (var id in RaisedToError)
             builder.Append("dotnet_diagnostic.").Append(id).Append(".severity = error\n");
         foreach (var id in OffByDefault)
@@ -86,6 +90,7 @@ internal static class PackRuleFiles
 
     private static bool IsRaisedToWarning(DiagnosticDescriptor descriptor) =>
         descriptor.IsEnabledByDefault
+        && !RaisedToWarning.Contains(descriptor.Id, StringComparer.Ordinal)
         && !RaisedToError.Contains(descriptor.Id, StringComparer.Ordinal)
         && !OffByDefault.Contains(descriptor.Id, StringComparer.Ordinal)
         && descriptor.DefaultSeverity is DiagnosticSeverity.Info or DiagnosticSeverity.Error
