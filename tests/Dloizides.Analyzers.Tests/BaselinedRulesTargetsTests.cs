@@ -54,6 +54,21 @@ public sealed class BaselinedRulesTargetsTests : IDisposable
         Assert.DoesNotContain("DLZ0026", properties.WarningsNotAsErrors, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void BaselinedRulesAsErrors_WithOptInAndExceptionFlowBaseline_EscalatesDlz0028()
+    {
+        var exceptionFlow = Path.Combine(_directory, "exception-flow-baseline.txt");
+        File.WriteAllText(exceptionFlow, string.Empty);
+
+        var properties = TargetsProbe.Evaluate(
+            _directory,
+            "<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>",
+            $"<AdditionalFiles Include=\"{exceptionFlow}\" />");
+
+        Assert.Contains("DLZ0028;DLZ0019;DLZ0027", properties.WarningsAsErrors, StringComparison.Ordinal);
+        Assert.DoesNotContain("DLZ0028", properties.WarningsNotAsErrors, StringComparison.Ordinal);
+    }
+
     public void Dispose() => Directory.Delete(_directory, recursive: true);
 
     private TargetsProperties Evaluate(string optIn) =>

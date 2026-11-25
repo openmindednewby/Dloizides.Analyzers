@@ -97,6 +97,18 @@ Shrink-only baseline `validation-drift-baseline.txt` (same `path count` format a
 
 Baseline: `static-pure-baseline.txt` as an AdditionalFile, same shrink-only format as DLZ0016 (allowed violation count per file); DLZ0019 reports an entry above the actual count. With `<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>` and that file present, DLZ0026 and DLZ0019 are errors.
 
+## DLZ0028 (NO-EXCEPTION-FLOW-1 "Never try/catch to test a parse; use TryParse")
+
+| Rule | Reports |
+|---|---|
+| `DLZ0028` | A `catch` of `FormatException`, `InvalidCastException` or `OverflowException` whose body only falls back: empty, `return;`, `return <constant / null / default>;`, `x = <constant / null / default>;`, `continue;`, `break;`. Outside assemblies whose name ends in `Tests`. A catch that logs, rethrows or computes a value is not reported. Warning, listed in `WarningsNotAsErrors`. |
+
+Baseline: `exception-flow-baseline.txt` as an AdditionalFile, same shrink-only format as DLZ0016; with `<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>` and that file present, DLZ0028, DLZ0019 and DLZ0027 are errors.
+
+## CANCEL-FORWARD-1 ("Pass the CancellationToken to every async call that accepts one")
+
+`MA0040` (Meziantou) and `CA2016` (.NET SDK) ship at `error` in `Dloizides.Analyzers.packs.globalconfig` (0.17.0+), so a build fails when a method has a `CancellationToken` in scope and calls an overload that takes one without passing it. A repo that cannot fix its existing calls at bump time lowers them in its own `.editorconfig` and lists the count there until it reaches zero.
+
 ## DLZ0016-DLZ0019 (LINQ-1, MEMBER-ORDER-1, FILE-SIZE-1, shrink-only baselines)
 
 All four are warnings listed in `WarningsNotAsErrors`. Files under `obj/` or `bin/` and `*.g.cs` / `*.Designer.cs` / `*ModelSnapshot.cs` are skipped; hand-written migrations and `generated/` folders are checked.

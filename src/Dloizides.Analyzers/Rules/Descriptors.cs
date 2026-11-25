@@ -41,6 +41,15 @@ public static class Descriptors
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
 
+    public static readonly DiagnosticDescriptor ExceptionFlow = new(
+        "DLZ0028",
+        "Never try/catch to test a parse",
+        "Catching '{0}' only to fall back to a constant tests a parse with an exception: use TryParse (NO-EXCEPTION-FLOW-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
     private const string Category = "Maintainability";
     private const string HelpLink = "https://github.com/openmindednewby/Dloizides.Analyzers#readme";
 

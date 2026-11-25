@@ -14,6 +14,8 @@ internal static class PackRuleFiles
 
     public static readonly string[] OffByDefault = { "MA0004", "MA0048" };
 
+    public static readonly string[] RaisedToError = { "MA0040", "CA2016" };
+
     private static readonly Regex SeverityLine = new(@"^dotnet_diagnostic\.(\S+)\.severity = (\S+)$", RegexOptions.Multiline);
 
     private static readonly string[] PackKeys = { "MeziantouPath", "ThreadingPath", "SonarPath" };
@@ -40,6 +42,8 @@ internal static class PackRuleFiles
         var builder = new StringBuilder("is_global = true\nglobal_level = 50\n");
         foreach (var descriptor in descriptors.Where(IsRaisedToWarning))
             builder.Append("dotnet_diagnostic.").Append(descriptor.Id).Append(".severity = warning\n");
+        foreach (var id in RaisedToError)
+            builder.Append("dotnet_diagnostic.").Append(id).Append(".severity = error\n");
         foreach (var id in OffByDefault)
             builder.Append("dotnet_diagnostic.").Append(id).Append(".severity = none\n");
         return builder.ToString();
@@ -50,7 +54,7 @@ internal static class PackRuleFiles
 
     public static ImmutableDictionary<string, ReportDiagnostic> ShippedSeverities() =>
         SeverityLine.Matches(Shipped(GlobalConfigFile))
-            .ToImmutableDictionary(match => match.Groups[1].Value, match => match.Groups[2].Value == "none" ? ReportDiagnostic.Suppress : ReportDiagnostic.Warn);
+            .ToImmutableDictionary(match => match.Groups[1].Value, match => Severity(match.Groups[2].Value));
 
     public static string Shipped(string fileName) =>
         File.ReadAllText(Path.Combine(Metadata("BuildTransitivePath"), fileName)).Replace("\r\n", "\n", StringComparison.Ordinal);
@@ -63,8 +67,17 @@ internal static class PackRuleFiles
         return path;
     }
 
+    private static ReportDiagnostic Severity(string value) =>
+        value switch
+        {
+            "none" => ReportDiagnostic.Suppress,
+            "error" => ReportDiagnostic.Error,
+            _ => ReportDiagnostic.Warn,
+        };
+
     private static bool IsRaisedToWarning(DiagnosticDescriptor descriptor) =>
         descriptor.IsEnabledByDefault
+        && !RaisedToError.Contains(descriptor.Id, StringComparer.Ordinal)
         && !OffByDefault.Contains(descriptor.Id, StringComparer.Ordinal)
         && descriptor.DefaultSeverity is DiagnosticSeverity.Info or DiagnosticSeverity.Error
         && !descriptor.CustomTags.Contains(WellKnownDiagnosticTags.NotConfigurable);
