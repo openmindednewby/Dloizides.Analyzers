@@ -20,7 +20,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../Dloizides.Analyzers.CodeFixes/Dloizides.Analyzers.CodeFixes.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="../Dloizides.Analyzers.CodeFixes/$(OutputPath)Dloizides.Analyzers.CodeFixes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="buildTransitive/Dloizides.Analyzers.props" Pack="true" PackagePath="buildTransitive" />
     <None Include="buildTransitive/Dloizides.Analyzers.targets" Pack="true" PackagePath="buildTransitive" />
     <None Include="buildTransitive/Dloizides.Analyzers.PackRules.targets" Pack="true" PackagePath="buildTransitive" />

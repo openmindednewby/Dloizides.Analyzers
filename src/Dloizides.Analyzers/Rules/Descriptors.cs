@@ -41,6 +41,16 @@ public static class Descriptors
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
 
+    public static readonly DiagnosticDescriptor SealedRecord = new(
+        "DLZ0029",
+        "A record nothing derives from is sealed",
+        "Record '{0}' is not sealed and no record of this compilation derives from it: add 'sealed' (SEALED-RECORD-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink,
+        customTags: WellKnownDiagnosticTags.CompilationEnd);
+
     public static readonly DiagnosticDescriptor ExceptionFlow = new(
         "DLZ0028",
         "Never try/catch to test a parse",

@@ -105,6 +105,14 @@ Baseline: `static-pure-baseline.txt` as an AdditionalFile, same shrink-only form
 
 Baseline: `exception-flow-baseline.txt` as an AdditionalFile, same shrink-only format as DLZ0016; with `<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>` and that file present, DLZ0028, DLZ0019 and DLZ0027 are errors.
 
+## DLZ0029 (SEALED-RECORD-1 "A record nothing derives from is sealed")
+
+| Rule | Reports |
+|---|---|
+| `DLZ0029` | A `record` / `record class` that is neither `sealed` nor `abstract` and that no record of the same compilation derives from (generic bases match by definition). `record struct` is skipped. One diagnostic per record, at its first declaration (partial records once). Test assemblies are checked too. A record derived from in another assembly is reported: list it in the baseline. Code fix (0.19.0+): adds `sealed` before `partial`, keeping leading trivia. Warning, listed in `WarningsNotAsErrors`. |
+
+Baseline: `sealed-record-baseline.txt` as an AdditionalFile, same shrink-only format as DLZ0016; with `<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>` and that file present, DLZ0029, DLZ0019 and DLZ0027 are errors.
+
 ## CANCEL-FORWARD-1 ("Pass the CancellationToken to every async call that accepts one")
 
 `MA0040` (Meziantou) and `CA2016` (.NET SDK) ship at `error` in `Dloizides.Analyzers.packs.globalconfig` (0.17.0+), so a build fails when a method has a `CancellationToken` in scope and calls an overload that takes one without passing it. A repo that cannot fix its existing calls at bump time lowers them in its own `.editorconfig` and lists the count there until it reaches zero.
@@ -119,7 +127,7 @@ All four are warnings listed in `WarningsNotAsErrors`. Files under `obj/` or `bi
 | `DLZ0017` | A field, property, method or instance constructor above a more accessible member of the same kind in the same class, struct or record; order is public, internal, protected internal, protected, private protected, private (no modifier = private). Static constructors and explicit interface implementations are skipped. One diagnostic per misplaced member (MEMBER-ORDER-1) |
 | `DLZ0018` | A source file over 300 raw lines (the final newline does not count), or a file over its entry in a `file-size-baseline.txt` AdditionalFile (FILE-SIZE-1 "A file stays under its size limit; big files only shrink") |
 | `DLZ0019` | A baseline entry above the file's actual count (violations for DLZ0016/DLZ0017, lines for DLZ0018): lower the entry to the count, or remove it at 0 |
-| `DLZ0027` | A file listed in a violation baseline (`linq-syntax-baseline.txt`, `member-order-baseline.txt`, `static-pure-baseline.txt`, `validation-drift-baseline.txt`, entry above 0) with more violations than its entry: one diagnostic at the file start naming the actual and allowed count and how many to fix, next to every violation (0.17.0+). Unlisted files get none; DLZ0018 already names the allowed length. Escalated with DLZ0019 |
+| `DLZ0027` | A file listed in a violation baseline (`linq-syntax-baseline.txt`, `member-order-baseline.txt`, `static-pure-baseline.txt`, `validation-drift-baseline.txt`, `sealed-record-baseline.txt`, entry above 0) with more violations than its entry: one diagnostic at the file start naming the actual and allowed count and how many to fix, next to every violation (0.17.0+). Unlisted files get none; DLZ0018 already names the allowed length. Escalated with DLZ0019 |
 
 Baseline: add `<AdditionalFiles Include="$(MSBuildThisFileDirectory)file-size-baseline.txt" />` (for example in `Directory.Build.props`). Each line is `<path relative to the baseline file> <lines>`, for example `src/Orders/OrderService.cs 412`; paths match case-insensitively with `/` or `\`. A listed file may stay at or under its number; lower the number when the file shrinks (DLZ0019 reports a number above the actual count).
 
