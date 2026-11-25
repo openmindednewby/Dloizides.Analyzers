@@ -90,6 +90,8 @@ public sealed class BaselinedRulesTargetsTests : IDisposable
     [InlineData("pair-by-key-baseline.txt", "DLZ0032")]
     [InlineData("narrow-options-baseline.txt", "DLZ0033")]
     [InlineData("readonly-param-baseline.txt", "DLZ0034")]
+    [InlineData("dictionary-by-value-baseline.txt", "DLZ0035")]
+    [InlineData("null-forgiving-baseline.txt", "DLZ0036")]
     public void BaselinedRulesAsErrors_WithOptInAndRuleBaseline_EscalatesTheRule(string baselineFile, string ruleId)
     {
         var baseline = Path.Combine(_directory, baselineFile);

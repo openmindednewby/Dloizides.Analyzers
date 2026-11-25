@@ -134,6 +134,17 @@ All three DLZ rules skip assemblies whose name ends in `Tests` and generated pat
 
 Both DLZ rules skip assemblies whose name ends in `Tests` and generated paths, are warnings listed in `WarningsNotAsErrors`, and with `<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>` and the rule's baseline present, that rule, DLZ0019 and DLZ0027 are errors.
 
+## DLZ0033 extension, DLZ0035-DLZ0036 and CA2208 (NARROW-OPTIONS-1, DICT-BY-VALUE-1, NO-NULL-FORGIVE-1, ARG-EXCEPTION-1)
+
+| Rule | Reports |
+|---|---|
+| `DLZ0033` (0.22.0+) | NARROW-OPTIONS-1 extended: "a method takes the one settings value it reads, never the whole settings object". A constructor or method parameter of a non-generic class named `*Settings` / `*Options` with two or more public properties, whose every read (directly, through `!`, `?.`, or the field/local it is stored in) starts with the same property. Null checks are ignored; passing it on, returning it or calling a method on it reports nothing. Overrides, virtual/abstract members, interface implementations and extension `this` parameters are skipped. Reported at the parameter with the common chain (`'Admie.TimeZoneId'`). Same baseline `narrow-options-baseline.txt`. |
+| `DLZ0035` | DICT-BY-VALUE-1 "Never search a dictionary through its values; build the reverse lookup once". `Enumerable` `First`, `FirstOrDefault`, `Single`, `SingleOrDefault`, `Where`, `Any` or `Count` on an `IDictionary<,>` / `IReadOnlyDictionary<,>` (or a type implementing one) whose lambda reads its parameter's `.Value`; and `.Values.Contains(...)` / `ContainsValue(...)` inside a `for`/`foreach`/`while`/`do` of the same member. Reported at the method name. Baseline `dictionary-by-value-baseline.txt`. |
+| `DLZ0036` | NO-NULL-FORGIVE-1 "No `!` null-forgiving operator in production code". Every `!` null-forgiving operator, at the operator. Paths under `Migrations/` are skipped. Baseline `null-forgiving-baseline.txt`. |
+| `CA2208` | ARG-EXCEPTION-1 "An argument exception names a real parameter". .NET SDK rule raised to `error` in the packs globalconfig (0.22.0+), so `new ArgumentOutOfRangeException(nameof(lookup.SheetIndex))` fails the build. A repo that cannot fix its existing cases at bump time lowers it in its own `.editorconfig` with the count until it reaches zero. |
+
+Both new DLZ rules skip assemblies whose name ends in `Tests` and generated paths, are warnings listed in `WarningsNotAsErrors`, and with `<DloizidesBaselinedRulesAsErrors>true</DloizidesBaselinedRulesAsErrors>` and the rule's baseline present, that rule, DLZ0019 and DLZ0027 are errors.
+
 ## CANCEL-FORWARD-1 ("Pass the CancellationToken to every async call that accepts one")
 
 `MA0040` (Meziantou) and `CA2016` (.NET SDK) ship at `error` in `Dloizides.Analyzers.packs.globalconfig` (0.17.0+), so a build fails when a method has a `CancellationToken` in scope and calls an overload that takes one without passing it. A repo that cannot fix its existing calls at bump time lowers them in its own `.editorconfig` and lists the count there until it reaches zero.

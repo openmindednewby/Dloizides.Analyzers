@@ -16,7 +16,7 @@ internal static class PackRuleFiles
 
     public static readonly string[] RaisedToWarning = { "S3242" };
 
-    public static readonly string[] RaisedToError = { "MA0040", "CA2016" };
+    public static readonly string[] RaisedToError = { "MA0040", "CA2016", "CA2208" };
 
     public static readonly string[] AnalyzerOptionLines = { "MA0053.public_class_should_be_sealed = true" };
 

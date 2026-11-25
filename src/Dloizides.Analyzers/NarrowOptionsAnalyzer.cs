@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Dloizides.Analyzers.Rules;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -14,7 +15,7 @@ public sealed class NarrowOptionsAnalyzer : DiagnosticAnalyzer
     public const string BaselineFileName = "narrow-options-baseline.txt";
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(Descriptors.NarrowOptions, Descriptors.StaleBaseline, Descriptors.BaselineOverCount);
+        ImmutableArray.Create(Descriptors.NarrowOptions, Descriptors.NarrowSettingsParameter, Descriptors.StaleBaseline, Descriptors.BaselineOverCount);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -39,11 +40,23 @@ public sealed class NarrowOptionsAnalyzer : DiagnosticAnalyzer
             .OfType<TypeDeclarationSyntax>()
             .Where(type => !type.Modifiers.Any(SyntaxKind.PartialKeyword))
             .SelectMany(type => type.Members
-                .OfType<ConstructorDeclarationSyntax>()
-                .SelectMany(constructor => constructor.ParameterList.Parameters)
-                .Select(parameter => OptionsSectionUse.ToDiagnostic(context.SemanticModel, type, parameter, context.CancellationToken)))
+                .OfType<BaseMethodDeclarationSyntax>()
+                .Where(member => IsChecked(context.SemanticModel, member, context.CancellationToken))
+                .SelectMany(member => member.ParameterList.Parameters)
+                .Select(parameter => OptionsSectionUse.ToDiagnostic(context.SemanticModel, type, parameter, context.CancellationToken)
+                    ?? SettingsParameterUse.ToDiagnostic(context.SemanticModel, type, parameter, context.CancellationToken)))
             .OfType<Diagnostic>()
             .ToList();
         baseline.Report(tree, context.ReportDiagnostic, violations);
     }
+
+    private static bool IsChecked(SemanticModel model, BaseMethodDeclarationSyntax member, CancellationToken cancellationToken) =>
+        member switch
+        {
+            ConstructorDeclarationSyntax => true,
+            MethodDeclarationSyntax method => (method.Body is not null || method.ExpressionBody is not null)
+                && model.GetDeclaredSymbol(method, cancellationToken) is IMethodSymbol symbol
+                && !ContractMethod.Is(symbol),
+            _ => false,
+        };
 }

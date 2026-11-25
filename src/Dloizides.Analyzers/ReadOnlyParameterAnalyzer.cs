@@ -42,21 +42,12 @@ public sealed class ReadOnlyParameterAnalyzer : DiagnosticAnalyzer
             .DescendantNodes()
             .OfType<MethodDeclarationSyntax>()
             .Where(method => method.Body is not null || method.ExpressionBody is not null)
-            .Where(method => context.SemanticModel.GetDeclaredSymbol(method, context.CancellationToken) is IMethodSymbol symbol && !IsContract(symbol))
+            .Where(method => context.SemanticModel.GetDeclaredSymbol(method, context.CancellationToken) is IMethodSymbol symbol && !ContractMethod.Is(symbol))
             .SelectMany(method => method.ParameterList.Parameters.Select(parameter => ToDiagnostic(context.SemanticModel, method, parameter, context.CancellationToken)))
             .OfType<Diagnostic>()
             .ToList();
         baseline.Report(tree, context.ReportDiagnostic, violations);
     }
-
-    private static bool IsContract(IMethodSymbol method) =>
-        method.IsOverride
-        || method.IsVirtual
-        || method.IsAbstract
-        || !method.ExplicitInterfaceImplementations.IsEmpty
-        || method.ContainingType.AllInterfaces
-            .SelectMany(contract => contract.GetMembers())
-            .Any(member => SymbolEqualityComparer.Default.Equals(method.ContainingType.FindImplementationForInterfaceMember(member), method));
 
     private static Diagnostic? ToDiagnostic(SemanticModel model, MethodDeclarationSyntax method, ParameterSyntax parameter, CancellationToken cancellationToken)
     {

@@ -83,6 +83,7 @@ dotnet_diagnostic.VSTHRD202.severity = warning
 dotnet_diagnostic.S3242.severity = warning
 dotnet_diagnostic.MA0040.severity = error
 dotnet_diagnostic.CA2016.severity = error
+dotnet_diagnostic.CA2208.severity = error
 dotnet_diagnostic.MA0004.severity = none
 dotnet_diagnostic.MA0048.severity = none
 MA0053.public_class_should_be_sealed = true

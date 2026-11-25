@@ -105,6 +105,33 @@ public static class Descriptors
         isEnabledByDefault: true,
         helpLinkUri: HelpLink);
 
+    public static readonly DiagnosticDescriptor NarrowSettingsParameter = new(
+        "DLZ0033",
+        "Take the one settings value a method reads",
+        "'{0}' reads only '{1}' of {2}: take that value instead of the whole {2} (NARROW-OPTIONS-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
+    public static readonly DiagnosticDescriptor DictionaryByValue = new(
+        "DLZ0035",
+        "Never search a dictionary through its values",
+        "'{0}' searches a dictionary through its values: build the reverse lookup once (DICT-BY-VALUE-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
+    public static readonly DiagnosticDescriptor NullForgiving = new(
+        "DLZ0036",
+        "No null-forgiving operator in production code",
+        "The '!' null-forgiving operator hides a possible null: check it, or make the type non-nullable (NO-NULL-FORGIVE-1)",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
+
     public static readonly DiagnosticDescriptor ExceptionFlow = new(
         "DLZ0028",
         "Never try/catch to test a parse",
