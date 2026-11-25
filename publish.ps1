@@ -145,7 +145,8 @@ try {
     $srcPath = Join-Path $repoRoot "src"
     $csprojFiles = @(
       Get-ChildItem -Path $srcPath -Recurse -Filter "*.csproj" -File -ErrorAction SilentlyContinue |
-      Where-Object { $_.FullName -notmatch "\\(bin|obj)\\" }
+      Where-Object { $_.FullName -notmatch "\\(bin|obj)\\" } |
+      Where-Object { (Get-Content -Path $_.FullName -Raw) -notmatch "<IsPackable>\s*false\s*</IsPackable>" }
     )
     if ($csprojFiles.Count -eq 1) {
       $packTarget = $csprojFiles[0].FullName
