@@ -99,7 +99,7 @@ public static class Descriptors
     public static readonly DiagnosticDescriptor ReadOnlyParameter = new(
         "DLZ0034",
         "A parameter the method only reads is a read-only type",
-        "'{0}' is a List the method only reads: take IReadOnlyList<{1}> (READONLY-PARAM-1)",
+        "'{0}' is a List that is only read: declare it IReadOnlyList<{1}> (READONLY-PARAM-1)",
         Category,
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,

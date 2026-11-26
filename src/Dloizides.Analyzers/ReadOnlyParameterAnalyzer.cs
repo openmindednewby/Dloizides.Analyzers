@@ -13,10 +13,6 @@ public sealed class ReadOnlyParameterAnalyzer : DiagnosticAnalyzer
 {
     public const string BaselineFileName = "readonly-param-baseline.txt";
 
-    private const string ListType = "System.Collections.Generic.List<T>";
-    private const string EnumerableType = "System.Linq.Enumerable";
-    private const string CountName = "Count";
-
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(Descriptors.ReadOnlyParameter, Descriptors.StaleBaseline, Descriptors.BaselineOverCount);
 
@@ -38,47 +34,36 @@ public sealed class ReadOnlyParameterAnalyzer : DiagnosticAnalyzer
         var tree = context.SemanticModel.SyntaxTree;
         if (GeneratedPath.IsMatch(tree.FilePath))
             return;
-        var violations = tree.GetRoot(context.CancellationToken)
-            .DescendantNodes()
-            .OfType<MethodDeclarationSyntax>()
-            .Where(method => method.Body is not null || method.ExpressionBody is not null)
-            .Where(method => context.SemanticModel.GetDeclaredSymbol(method, context.CancellationToken) is IMethodSymbol symbol && !ContractMethod.Is(symbol))
-            .SelectMany(method => method.ParameterList.Parameters.Select(parameter => ToDiagnostic(context.SemanticModel, method, parameter, context.CancellationToken)))
+        var uses = new ReadOnlyListUses(context.SemanticModel, context.CancellationToken);
+        var nodes = tree.GetRoot(context.CancellationToken).DescendantNodes().ToList();
+        var parameters = nodes
+            .OfType<BaseMethodDeclarationSyntax>()
+            .Where(method => method is MethodDeclarationSyntax or ConstructorDeclarationSyntax)
+            .SelectMany(method => method.ParameterList.Parameters)
+            .Cast<SyntaxNode>();
+        var fields = nodes
+            .OfType<FieldDeclarationSyntax>()
+            .SelectMany(field => field.Declaration.Variables);
+        var violations = parameters
+            .Concat(fields)
+            .Select(node => ToDiagnostic(context.SemanticModel, uses, node, context.CancellationToken))
             .OfType<Diagnostic>()
             .ToList();
         baseline.Report(tree, context.ReportDiagnostic, violations);
     }
 
-    private static Diagnostic? ToDiagnostic(SemanticModel model, MethodDeclarationSyntax method, ParameterSyntax parameter, CancellationToken cancellationToken)
-    {
-        if (model.GetDeclaredSymbol(parameter, cancellationToken) is not IParameterSymbol symbol
-            || symbol.RefKind != RefKind.None
-            || symbol.Type is not INamedTypeSymbol { TypeArguments.Length: 1 } list
-            || list.ConstructedFrom.ToDisplayString() != ListType)
-            return null;
-        var uses = method.DescendantNodes()
-            .OfType<IdentifierNameSyntax>()
-            .Where(name => name.Identifier.ValueText == symbol.Name
-                && SymbolEqualityComparer.Default.Equals(model.GetSymbolInfo(name, cancellationToken).Symbol, symbol))
-            .ToList();
-        return uses.Count > 0 && uses.All(use => IsRead(model, use, cancellationToken))
-            ? Diagnostic.Create(Descriptors.ReadOnlyParameter, parameter.GetLocation(), symbol.Name, list.TypeArguments[0].ToDisplayString())
+    private static Diagnostic? ToDiagnostic(SemanticModel model, ReadOnlyListUses uses, SyntaxNode node, CancellationToken cancellationToken) =>
+        model.GetDeclaredSymbol(node, cancellationToken) is { } symbol
+        && TypeOf(symbol) is INamedTypeSymbol list
+        && ReadOnlyListUses.IsList(list)
+        && uses.IsOnlyRead(symbol)
+            ? Diagnostic.Create(Descriptors.ReadOnlyParameter, node.GetLocation(), symbol.Name, list.TypeArguments[0].ToDisplayString())
             : null;
-    }
 
-    private static bool IsRead(SemanticModel model, IdentifierNameSyntax use, CancellationToken cancellationToken) =>
-        use.Parent switch
-        {
-            ForEachStatementSyntax loop => loop.Expression == use,
-            ElementAccessExpressionSyntax element => element.Expression == use && !(element.Parent is AssignmentExpressionSyntax assignment && assignment.Left == element),
-            MemberAccessExpressionSyntax access when access.Expression == use =>
-                access.Name.Identifier.ValueText == CountName && access.Parent is not InvocationExpressionSyntax
-                || IsLinqCall(model, access, cancellationToken),
-            _ => false,
-        };
-
-    private static bool IsLinqCall(SemanticModel model, MemberAccessExpressionSyntax access, CancellationToken cancellationToken) =>
-        access.Parent is InvocationExpressionSyntax invocation
-        && model.GetSymbolInfo(invocation, cancellationToken).Symbol is IMethodSymbol { ReducedFrom: IMethodSymbol definition }
-        && definition.ContainingType.ToDisplayString() == EnumerableType;
+    private static ITypeSymbol? TypeOf(ISymbol symbol) => symbol switch
+    {
+        IParameterSymbol parameter => parameter.Type,
+        IFieldSymbol field => field.Type,
+        _ => null,
+    };
 }
