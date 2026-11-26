@@ -11,17 +11,17 @@ internal static class CompositionRootMembers
 {
     private const string ServiceProvider = "System.IServiceProvider";
 
-    public static HashSet<MemberDeclarationSyntax> Of(SemanticModel model, ClassDeclarationSyntax type, CancellationToken cancellationToken)
+    public static HashSet<MemberDeclarationSyntax> Of(SemanticModel model, TypeDeclarationSyntax type, CancellationToken cancellationToken)
     {
         var methods = type.Members.OfType<MethodDeclarationSyntax>()
-            .Select(method => new Candidate(method, model.GetDeclaredSymbol(method, cancellationToken)))
-            .Where(candidate => candidate.Symbol is not null)
+            .Select(method => model.GetDeclaredSymbol(method, cancellationToken) is { } symbol ? new Candidate(method, symbol) : null)
+            .OfType<Candidate>()
             .ToList();
-        var exempt = new HashSet<MemberDeclarationSyntax>(methods.Where(candidate => TakesBuilder(candidate.Symbol!)).Select(candidate => candidate.Syntax));
+        var exempt = new HashSet<MemberDeclarationSyntax>(methods.Where(candidate => TakesBuilder(candidate.Symbol)).Select(candidate => candidate.Syntax));
         if (type.Modifiers.Any(SyntaxKind.PartialKeyword))
             return exempt;
         var references = References(model, type, cancellationToken);
-        var helpers = methods.Where(candidate => candidate.Symbol!.DeclaredAccessibility == Accessibility.Private && !exempt.Contains(candidate.Syntax)).ToList();
+        var helpers = methods.Where(candidate => candidate.Symbol.DeclaredAccessibility == Accessibility.Private && !exempt.Contains(candidate.Syntax)).ToList();
         int before;
         do
         {
@@ -34,25 +34,25 @@ internal static class CompositionRootMembers
 
     private static bool TakesBuilder(IMethodSymbol method) => method.Parameters.Any(parameter => StartupBuilder.IsMatch(parameter.Type));
 
-    private static bool IsCalledOnlyFrom(HashSet<MemberDeclarationSyntax> exempt, ILookup<ISymbol, SimpleNameSyntax> references, Candidate helper)
+    private static bool IsCalledOnlyFrom(ICollection<MemberDeclarationSyntax> exempt, ILookup<ISymbol, SimpleNameSyntax> references, Candidate helper)
     {
-        var uses = references[helper.Symbol!].ToList();
-        var isFactory = IsServiceFactory(helper.Symbol!);
-        return uses.Count > 0 && uses.TrueForAll(use => (isFactory || IsInvoked(use)) && exempt.Contains(OwningMember(use)!));
+        var uses = references[helper.Symbol].ToList();
+        var isFactory = IsServiceFactory(helper.Symbol);
+        return uses.Count > 0 && uses.TrueForAll(use => (isFactory || IsInvoked(use)) && OwningMember(use) is { } owner && exempt.Contains(owner));
     }
 
     private static bool IsServiceFactory(IMethodSymbol method) =>
-        method.Parameters.Length == 1 && string.Equals(method.Parameters[0].Type.ToDisplayString(), ServiceProvider, System.StringComparison.Ordinal);
+        method.Parameters.Length == 1 && TypeNames.Is(method.Parameters[0].Type, ServiceProvider);
 
-    private static ILookup<ISymbol, SimpleNameSyntax> References(SemanticModel model, ClassDeclarationSyntax type, CancellationToken cancellationToken) =>
+    private static ILookup<ISymbol, SimpleNameSyntax> References(SemanticModel model, SyntaxNode type, CancellationToken cancellationToken) =>
         type.DescendantNodes()
             .OfType<SimpleNameSyntax>()
             .Where(name => OwningMember(name) is not null)
-            .Select(name => new { Name = name, Method = model.GetSymbolInfo(name, cancellationToken).Symbol as IMethodSymbol })
-            .Where(reference => reference.Method is not null)
-            .ToLookup(reference => (ISymbol)(reference.Method!.ReducedFrom ?? reference.Method.OriginalDefinition), reference => reference.Name, SymbolEqualityComparer.Default);
+            .Select(name => model.GetSymbolInfo(name, cancellationToken).Symbol is IMethodSymbol method ? new Reference(name, method) : null)
+            .OfType<Reference>()
+            .ToLookup(reference => (ISymbol)(reference.Method.ReducedFrom ?? reference.Method.OriginalDefinition), reference => reference.Name, SymbolEqualityComparer.Default);
 
-    private static bool IsInvoked(SimpleNameSyntax name)
+    private static bool IsInvoked(SyntaxNode name)
     {
         var expression = name.Parent is MemberAccessExpressionSyntax access && access.Name == name ? (SyntaxNode)access : name;
         return expression.Parent is InvocationExpressionSyntax invocation && invocation.Expression == expression;
@@ -61,16 +61,7 @@ internal static class CompositionRootMembers
     private static MemberDeclarationSyntax? OwningMember(SyntaxNode node) =>
         node.Ancestors().OfType<MemberDeclarationSyntax>().FirstOrDefault(member => member.Parent is ClassDeclarationSyntax);
 
-    private sealed class Candidate
-    {
-        public Candidate(MethodDeclarationSyntax syntax, IMethodSymbol? symbol)
-        {
-            Syntax = syntax;
-            Symbol = symbol;
-        }
+    private sealed record Candidate(MethodDeclarationSyntax Syntax, IMethodSymbol Symbol);
 
-        public MethodDeclarationSyntax Syntax { get; }
-
-        public IMethodSymbol? Symbol { get; }
-    }
+    private sealed record Reference(SimpleNameSyntax Name, IMethodSymbol Method);
 }

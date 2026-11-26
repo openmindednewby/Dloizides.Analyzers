@@ -45,7 +45,7 @@ public sealed class StaticPureAnalyzer : DiagnosticAnalyzer
         baseline.Report(tree, context.ReportDiagnostic, violations);
     }
 
-    private static IEnumerable<Diagnostic> Violations(SemanticModel model, ClassDeclarationSyntax type, CancellationToken cancellationToken)
+    private static IEnumerable<Diagnostic> Violations(SemanticModel model, TypeDeclarationSyntax type, CancellationToken cancellationToken)
     {
         var compositionRoot = CompositionRootMembers.Of(model, type, cancellationToken);
         return type.Members
@@ -56,7 +56,7 @@ public sealed class StaticPureAnalyzer : DiagnosticAnalyzer
             .OfType<Diagnostic>();
     }
 
-    private static Diagnostic? ToDiagnostic(ClassDeclarationSyntax type, SyntaxNode node, ISymbol? symbol)
+    private static Diagnostic? ToDiagnostic(BaseTypeDeclarationSyntax type, SyntaxNode node, ISymbol? symbol)
     {
         var effect = StaticPureSymbols.Effect(symbol);
         return effect is null || symbol is null

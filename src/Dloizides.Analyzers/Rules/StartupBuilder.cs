@@ -28,12 +28,12 @@ internal static class StartupBuilder
         _ => SelfBasesAndInterfaces(type).Any(IsBuilderType),
     };
 
-    private static bool IsBuilderType(ITypeSymbol type)
+    private static bool IsBuilderType(INamespaceOrTypeSymbol type)
     {
-        var name = FullName(type);
+        var name = TypeNames.FullName(type);
         return HostTypes.Contains(name)
             || (type.Name.EndsWith(BuilderSuffix, StringComparison.Ordinal) && Array.Exists(HostNamespaces, prefix => name.StartsWith(prefix, StringComparison.Ordinal)))
-            || type.GetMembers(ServicesProperty).OfType<IPropertySymbol>().Any(property => string.Equals(FullName(property.Type), ServiceCollection, StringComparison.Ordinal));
+            || type.GetMembers(ServicesProperty).OfType<IPropertySymbol>().Any(property => TypeNames.Is(property.Type, ServiceCollection));
     }
 
     private static IEnumerable<ITypeSymbol> SelfBasesAndInterfaces(ITypeSymbol type)
@@ -43,9 +43,4 @@ internal static class StartupBuilder
         foreach (var contract in type.AllInterfaces)
             yield return contract;
     }
-
-    private static string FullName(ITypeSymbol type) =>
-        type.ContainingNamespace is null || type.ContainingNamespace.IsGlobalNamespace
-            ? type.MetadataName
-            : type.ContainingNamespace.ToDisplayString() + "." + type.MetadataName;
 }
