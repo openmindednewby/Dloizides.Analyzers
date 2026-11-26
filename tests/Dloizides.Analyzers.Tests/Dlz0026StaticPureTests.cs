@@ -1,6 +1,6 @@
 namespace Dloizides.Analyzers.Tests;
 
-public class Dlz0026StaticPureTests
+public sealed class Dlz0026StaticPureTests
 {
     private const string Dlz0026 = "DLZ0026";
     private const string Dlz0019 = "DLZ0019";
@@ -55,6 +55,8 @@ public class Dlz0026StaticPureTests
     [InlineData("public static class Setup { public static IServiceCollection AddShop(this IServiceCollection services) { _ = Stamp(); return services; } public static object Handle() => Stamp(); private static object Stamp() => System.DateTime.UtcNow; }")]
     [InlineData("public static class Setup { public static IServiceCollection AddShop(this IServiceCollection services) { System.Func<object> handler = Stamp; return services; } private static object Stamp() => System.DateTime.UtcNow; }")]
     [InlineData("public static class Setup { public static IServiceCollection AddShop(this IServiceCollection services) { _ = Stamp(); return services; } internal static object Stamp() => System.DateTime.UtcNow; }")]
+    [InlineData("public static partial class Paths { public static string Read(string path) => System.IO.File.ReadAllText(path); }")]
+    [InlineData("public static class Outer { public static class Inner { public static object Stamp() => System.DateTime.UtcNow; } }")]
     public async Task Analyze_WithImpureAccessInStaticClass_ReportsDlz0026(string type)
     {
         var ids = await HouseRuleRunner.IdsAsync(new StaticPureAnalyzer(), Stubs + type + Close);

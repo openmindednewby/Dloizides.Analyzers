@@ -13,6 +13,9 @@ internal static class StaticPureSymbols
     private const string ReadsConfiguration = "reads configuration";
     private const string ResolvesServices = "resolves services";
     private const string EnvironmentVariablePrefix = "GetEnvironmentVariable";
+    private const string DateTimeType = "System.DateTime";
+    private const string DateTimeOffsetType = "System.DateTimeOffset";
+    private const string EnvironmentType = "System.Environment";
 
     private static readonly HashSet<string> IoTypes = new(StringComparer.Ordinal) { "System.IO.File", "System.IO.Directory", "System.Net.Http.HttpClient", "System.Diagnostics.Process" };
     private static readonly HashSet<string> PathStreamTypes = new(StringComparer.Ordinal) { "System.IO.FileStream", "System.IO.StreamReader", "System.IO.StreamWriter" };
@@ -33,7 +36,7 @@ internal static class StaticPureSymbols
 
     private static string? ConstructorEffect(IMethodSymbol constructor)
     {
-        var type = FullName(constructor.ContainingType);
+        var type = TypeNames.FullName(constructor.ContainingType);
         var opensPath = PathStreamTypes.Contains(type)
             && constructor.Parameters.FirstOrDefault()?.Type.SpecialType == SpecialType.System_String;
         return IoTypes.Contains(type) || opensPath ? DoesIo : null;
@@ -41,18 +44,22 @@ internal static class StaticPureSymbols
 
     private static string? MemberEffect(ISymbol symbol)
     {
-        var type = FullName(symbol.ContainingType);
+        var type = TypeNames.FullName(symbol.ContainingType);
         if (IoTypes.Contains(type))
             return DoesIo;
-        if ((string.Equals(type, "System.DateTime", StringComparison.Ordinal) && DateTimeClock.Contains(symbol.Name)) || (string.Equals(type, "System.DateTimeOffset", StringComparison.Ordinal) && DateTimeOffsetClock.Contains(symbol.Name)))
+        if (IsClock(type, symbol.Name))
             return ReadsClock;
-        if (string.Equals(type, "System.Environment", StringComparison.Ordinal) && symbol.Name.StartsWith(EnvironmentVariablePrefix, StringComparison.Ordinal))
+        if (string.Equals(type, EnvironmentType, StringComparison.Ordinal) && symbol.Name.StartsWith(EnvironmentVariablePrefix, StringComparison.Ordinal))
             return ReadsEnvironment;
         var receiver = Receiver(symbol);
         if (IsOrImplements(receiver, ConfigurationTypes))
             return ReadsConfiguration;
         return ServiceLookups.Contains(symbol.Name) && IsOrImplements(receiver, ServiceProviderTypes) ? ResolvesServices : null;
     }
+
+    private static bool IsClock(string type, string name) =>
+        (string.Equals(type, DateTimeType, StringComparison.Ordinal) && DateTimeClock.Contains(name))
+        || (string.Equals(type, DateTimeOffsetType, StringComparison.Ordinal) && DateTimeOffsetClock.Contains(name));
 
     private static ITypeSymbol? Receiver(ISymbol symbol) => symbol switch
     {
@@ -61,19 +68,14 @@ internal static class StaticPureSymbols
         _ => symbol.ContainingType,
     };
 
-    private static bool IsOrImplements(ITypeSymbol? type, HashSet<string> names) =>
+    private static bool IsOrImplements(ITypeSymbol? type, ICollection<string> names) =>
         type is not null
-        && (SelfAndBases(type).Any(candidate => names.Contains(FullName(candidate)))
-            || type.AllInterfaces.Any(candidate => names.Contains(FullName(candidate))));
+        && (SelfAndBases(type).Any(candidate => names.Contains(TypeNames.FullName(candidate)))
+            || type.AllInterfaces.Any(candidate => names.Contains(TypeNames.FullName(candidate))));
 
     private static IEnumerable<ITypeSymbol> SelfAndBases(ITypeSymbol type)
     {
         for (var current = type; current is not null; current = current.BaseType)
             yield return current;
     }
-
-    private static string FullName(ITypeSymbol? type) =>
-        type is null || type.ContainingNamespace is null || type.ContainingNamespace.IsGlobalNamespace
-            ? type?.MetadataName ?? string.Empty
-            : type.ContainingNamespace.ToDisplayString() + "." + type.MetadataName;
 }
